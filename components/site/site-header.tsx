@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sheet"
 import { BrandMark } from "@/components/site/brand-mark"
 import { LiveDot } from "@/components/site/decor"
+import { CommsRibbon } from "@/components/site/degraded-mode"
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = React.useState(false)
@@ -30,20 +31,8 @@ export function SiteHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {/* Bandeau statut (ribbon départ) */}
-      <div className="bg-foreground text-background">
-        <div className="mx-auto flex h-8 max-w-7xl items-center justify-between gap-4 px-5 font-mono text-[0.625rem] tracking-[0.18em] uppercase md:px-8">
-          <span className="flex items-center gap-2">
-            <LiveDot />
-            CCA // POLARIS · SOC-01
-          </span>
-          <span className="hidden items-center gap-3 sm:flex">
-            <span>Kepler-452c · orbite</span>
-            <span className="text-background/40">/</span>
-            <span>T+ 18M 04J</span>
-          </span>
-        </div>
-      </div>
+      {/* Bandeau communications : nominal ou mode dégradé (EVT-04C) */}
+      <CommsRibbon />
 
       {/* Barre de navigation */}
       <div

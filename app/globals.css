@@ -34,6 +34,8 @@
     --color-secondary: var(--secondary);
     --color-primary-foreground: var(--primary-foreground);
     --color-primary: var(--primary);
+    --color-alert: var(--alert);
+    --color-alert-foreground: var(--alert-foreground);
     --color-popover-foreground: var(--popover-foreground);
     --color-popover: var(--popover);
     --color-card-foreground: var(--card-foreground);
@@ -70,6 +72,8 @@
     --accent: oklch(0.93 0.011 86);
     --accent-foreground: oklch(0.235 0.004 70);
     --destructive: oklch(0.55 0.2 28);
+    --alert: oklch(0.5 0.2 27);
+    --alert-foreground: oklch(0.99 0.008 95);
     --border: oklch(0.8 0.013 82);
     --input: oklch(0.8 0.013 82);
     --ring: oklch(0.635 0.233 36);
@@ -106,6 +110,8 @@
     --accent: oklch(0.31 0.006 72);
     --accent-foreground: oklch(0.986 0.008 95);
     --destructive: oklch(0.62 0.2 28);
+    --alert: oklch(0.55 0.21 27);
+    --alert-foreground: oklch(0.99 0.008 95);
     --border: color-mix(in oklch, oklch(0.986 0.008 95) 16%, transparent);
     --input: color-mix(in oklch, oklch(0.986 0.008 95) 20%, transparent);
     --ring: oklch(0.66 0.23 38);
@@ -212,6 +218,115 @@
   .marquee-track { animation: marquee 42s linear infinite; }
 }
 
+/* ============================================================
+   Mode dégradé — EVT-04C · tempête solaire
+   Effets scopés sous html.degraded. Transform/opacity uniquement,
+   pointer-events:none sur les surcouches → le site reste cliquable.
+   ============================================================ */
+@keyframes static-noise {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-4%, 2%); }
+  50% { transform: translate(3%, -3%); }
+  75% { transform: translate(-2%, 4%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes comms-flicker {
+  0%, 90%, 100% { opacity: 0.05; }
+  93% { opacity: 0.16; }
+  94% { opacity: 0.04; }
+  96% { opacity: 0.2; }
+  97% { opacity: 0.06; }
+}
+@keyframes glitch-rgb {
+  0%, 92%, 100% { transform: translate(0, 0); }
+  93% { transform: translate(-2px, 1px); }
+  94% { transform: translate(2px, -1px); }
+  95% { transform: translate(-1px, 0); }
+  96% { transform: translate(1px, 1px); }
+}
+@keyframes heading-tear {
+  0%, 88%, 100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+  90% { clip-path: inset(38% 0 30% 0); transform: translateX(-3px); }
+  92% { clip-path: inset(8% 0 62% 0); transform: translateX(3px); }
+  94% { clip-path: inset(62% 0 6% 0); transform: translateX(-2px); }
+  96% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+}
+@keyframes comms-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* Lignes de balayage (scanlines) — surcouche fixe, constante */
+html.degraded body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    color-mix(in oklch, var(--foreground) 13%, transparent) 0,
+    color-mix(in oklch, var(--foreground) 13%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.4;
+}
+/* Bruit statique animé + scintillement */
+html.degraded body::after {
+  content: "";
+  position: fixed;
+  inset: -60%;
+  z-index: 91;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.05;
+  animation: static-noise 0.5s steps(3) infinite, comms-flicker 7s linear infinite;
+}
+
+/* Titres : déchirure / glitch périodique (rare, reste lisible) */
+html.degraded h1,
+html.degraded h2 {
+  animation: heading-tear 6s steps(1) infinite;
+}
+html.degraded h2 { animation-delay: 2.2s; }
+
+/* Texte à fendillement RGB */
+.glitch-text { position: relative; display: inline-block; }
+html.degraded .glitch-text::before,
+html.degraded .glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+html.degraded .glitch-text::before {
+  left: 1px;
+  text-shadow: -1px 0 oklch(0.62 0.25 25);
+  animation: glitch-rgb 3s linear infinite;
+}
+html.degraded .glitch-text::after {
+  left: -1px;
+  text-shadow: 1px 0 oklch(0.7 0.18 210);
+  animation: glitch-rgb 2.4s linear infinite reverse;
+}
+
+/* Balayage lumineux sur le bandeau d'alerte */
+html.degraded .comms-alert::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--alert-foreground) 22%, transparent),
+    transparent
+  );
+  animation: comms-sweep 5s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *,
@@ -224,4 +339,11 @@
   }
   .reveal { opacity: 1 !important; transform: none !important; }
   .marquee-track { animation: none !important; }
+  /* Mode dégradé : on garde les scanlines + le bandeau, sans mouvement */
+  html.degraded body::after { animation: none !important; opacity: 0.05; }
+  html.degraded h1,
+  html.degraded h2 { animation: none !important; }
+  html.degraded .glitch-text::before { animation: none !important; opacity: 0.5; }
+  html.degraded .glitch-text::after { animation: none !important; opacity: 0.5; }
+  html.degraded .comms-alert::after { display: none; }
 }

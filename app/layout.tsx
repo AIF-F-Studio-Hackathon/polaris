@@ -113,6 +113,14 @@ export default function RootLayout({
       )}
     >
       <body className="bg-background text-foreground">
+        {/* Mode dégradé (EVT-04C) : activé par défaut, posé avant hydratation
+            pour éviter tout flash. Désactivable via le bandeau (localStorage). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{if(localStorage.getItem('polaris-comms')!=='nominal'){document.documentElement.classList.add('degraded')}}catch(e){document.documentElement.classList.add('degraded')}})()",
+          }}
+        />
         <ThemeProvider forcedTheme="light">{children}</ThemeProvider>
       </body>
     </html>
