@@ -219,11 +219,11 @@ export function CommsRibbon() {
           </span>
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="hidden items-center gap-2.5 lg:flex">
-              <span>EVT-04C</span>
+              <span>EVT-04 · M4</span>
               <span className="opacity-50">/</span>
-              <span>Signal 23 %</span>
+              <span>Débit 10 %</span>
               <span className="opacity-50">/</span>
-              <span>Perte de paquets</span>
+              <span>COM-DEGRAD</span>
             </span>
             <button
               type="button"

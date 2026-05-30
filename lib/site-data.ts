@@ -319,6 +319,19 @@ export const STATUS_LABEL: Record<IncidentStatus, string> = {
 
 export const INCIDENTS: Incident[] = [
   {
+    ref: "EVT-04",
+    date: "2079.05.30",
+    time: "03:00 UTC",
+    title: "Tempête solaire, classe M4",
+    system: "Communications · liaison haut débit",
+    severity: "haute",
+    status: "en-cours",
+    description:
+      "Tempête solaire de classe M4 détectée le 30/05/2079. Impact sur les communications attendu sous 45 minutes, durée estimée de 6 à 8 heures. Débit de liaison réduit à 10 %. Le protocole COM-DEGRAD est activé : le site bascule en mode de communication dégradé pour la durée de l'événement.",
+    resolution:
+      "Protocole COM-DEGRAD en vigueur. L'équipage passe en mode économie de bande passante : transmissions courtes et espacées jusqu'à la fin de la tempête. Note de l'équipage : « On a vu l'alerte. On passe en mode économie de bande passante. Les prochains messages seront courts. Ne vous inquiétez pas si on est silencieux. »",
+  },
+  {
     ref: "EVT-02",
     date: "2079.05.29",
     time: "22:00 UTC",
