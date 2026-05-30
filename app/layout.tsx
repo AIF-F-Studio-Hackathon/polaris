@@ -119,7 +119,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{if(localStorage.getItem('polaris-comms')!=='nominal'){document.documentElement.classList.add('degraded')}}catch(e){document.documentElement.classList.add('degraded')}})()",
+              "(function(){try{var d=document.documentElement;if(localStorage.getItem('polaris-comms')!=='nominal'){d.classList.add('degraded')}if(localStorage.getItem('polaris-fx')==='soft'){d.classList.add('fx-soft')}}catch(e){document.documentElement.classList.add('degraded')}})()",
           }}
         />
         <ThemeProvider forcedTheme="light">{children}</ThemeProvider>

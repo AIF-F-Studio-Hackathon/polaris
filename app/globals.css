@@ -430,6 +430,32 @@ html.degraded .comms-alert::after {
   animation: comms-sweep 3s linear infinite;
 }
 
+/* Effets réduits (toggle « Réduire les effets ») : on conserve l'ambiance
+   dégradée — scanlines + aberration chromatique figée — mais on coupe tous
+   les mouvements lourds. Même traitement que prefers-reduced-motion. */
+html.degraded.fx-soft body::after { animation: none !important; opacity: 0.12; }
+html.degraded.fx-soft::after { display: none; }
+html.degraded.fx-soft section,
+html.degraded.fx-soft nav,
+html.degraded.fx-soft ul,
+html.degraded.fx-soft dl,
+html.degraded.fx-soft article,
+html.degraded.fx-soft blockquote,
+html.degraded.fx-soft h1,
+html.degraded.fx-soft h2,
+html.degraded.fx-soft h3,
+html.degraded.fx-soft button,
+html.degraded.fx-soft figure,
+html.degraded.fx-soft img,
+html.degraded.fx-soft [data-slot="accordion-item"],
+html.degraded.fx-soft [data-slot="badge"] {
+  animation: none !important;
+  transform: none !important;
+}
+html.degraded.fx-soft .glitch-text::before { animation: none !important; opacity: 0.55; }
+html.degraded.fx-soft .glitch-text::after { animation: none !important; opacity: 0.55; }
+html.degraded.fx-soft .comms-alert::after { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *,

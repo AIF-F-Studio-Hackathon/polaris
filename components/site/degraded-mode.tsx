@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { RotateCw, TriangleAlert } from "lucide-react"
+import { Activity, RotateCw, TriangleAlert, Zap } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { LiveDot } from "@/components/site/decor"
@@ -19,6 +19,7 @@ import { LiveDot } from "@/components/site/decor"
  */
 
 const STORAGE_KEY = "polaris-comms"
+const FX_KEY = "polaris-fx"
 const CHANGE_EVENT = "polaris-comms-change"
 
 function subscribe(callback: () => void) {
@@ -57,6 +58,27 @@ export function useDegraded() {
   }, [])
 
   return { degraded, setDegraded }
+}
+
+/** Effets réduits : garde l'ambiance dégradée, coupe les mouvements lourds. */
+export function useReducedFx() {
+  const reduced = React.useSyncExternalStore(
+    subscribe,
+    () => document.documentElement.classList.contains("fx-soft"),
+    () => false
+  )
+
+  const setReduced = React.useCallback((value: boolean) => {
+    document.documentElement.classList.toggle("fx-soft", value)
+    try {
+      localStorage.setItem(FX_KEY, value ? "soft" : "full")
+    } catch {
+      // ignore
+    }
+    window.dispatchEvent(new Event(CHANGE_EVENT))
+  }, [])
+
+  return { reduced, setReduced }
 }
 
 /**
@@ -112,9 +134,10 @@ function scrambleOnce(el: HTMLElement) {
  */
 export function TextCorruption() {
   const { degraded } = useDegraded()
+  const { reduced } = useReducedFx()
 
   React.useEffect(() => {
-    if (!degraded) return
+    if (!degraded || reduced) return
     if (typeof window === "undefined") return
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
 
@@ -158,7 +181,7 @@ export function TextCorruption() {
         delete el.dataset.raf
       })
     }
-  }, [degraded])
+  }, [degraded, reduced])
 
   return null
 }
@@ -181,6 +204,7 @@ export function GlitchText({
 /** Bandeau du haut : alerte communications (dégradé) ou statut (nominal). */
 export function CommsRibbon() {
   const { degraded, setDegraded } = useDegraded()
+  const { reduced, setReduced } = useReducedFx()
 
   if (degraded) {
     return (
@@ -193,8 +217,8 @@ export function CommsRibbon() {
             <TriangleAlert className="size-3.5 shrink-0 animate-pulse" />
             <GlitchText text="Liaison dégradée — tempête solaire" />
           </span>
-          <div className="flex items-center gap-3">
-            <span className="hidden items-center gap-2.5 sm:flex">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="hidden items-center gap-2.5 lg:flex">
               <span>EVT-04C</span>
               <span className="opacity-50">/</span>
               <span>Signal 23 %</span>
@@ -203,11 +227,28 @@ export function CommsRibbon() {
             </span>
             <button
               type="button"
+              onClick={() => setReduced(!reduced)}
+              aria-pressed={reduced}
+              className="inline-flex items-center gap-1.5 border border-alert-foreground/40 px-2 py-0.5 tracking-[0.16em] transition-colors hover:bg-alert-foreground hover:text-alert focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-alert-foreground"
+            >
+              {reduced ? (
+                <Zap className="size-3" />
+              ) : (
+                <Activity className="size-3" />
+              )}
+              <span className="hidden sm:inline">
+                {reduced ? "Réactiver les effets" : "Réduire les effets"}
+              </span>
+              <span className="sm:hidden">{reduced ? "Effets" : "Réduire"}</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setDegraded(false)}
               className="inline-flex items-center gap-1.5 border border-alert-foreground/40 px-2 py-0.5 tracking-[0.16em] transition-colors hover:bg-alert-foreground hover:text-alert focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-alert-foreground"
             >
               <RotateCw className="size-3" />
-              Rétablir la liaison
+              <span className="hidden sm:inline">Rétablir la liaison</span>
+              <span className="sm:hidden">Rétablir</span>
             </button>
           </div>
         </div>
