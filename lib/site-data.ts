@@ -9,6 +9,7 @@ export const NAV_LINKS = [
   { label: "Mission", href: "#mission" },
   { label: "Objectifs", href: "#objectifs" },
   { label: "Chronologie", href: "#chronologie" },
+  { label: "Galerie", href: "#galerie" },
   { label: "Équipage", href: "#equipage" },
   { label: "À propos", href: "#apropos" },
 ] as const
@@ -132,6 +133,7 @@ export type CrewMember = {
   role: string
   callsign: string
   bio: string
+  photo: string
 }
 
 export const CREW: CrewMember[] = [
@@ -141,6 +143,7 @@ export const CREW: CrewMember[] = [
     role: "Commandante de mission",
     callsign: "CMD-01",
     bio: "Vingt ans d'expérience, trois missions orbitales dirigées avant AURORA.",
+    photo: "/astronautes/Astronaut-Ripley.png",
   },
   {
     initials: "SP",
@@ -148,6 +151,7 @@ export const CREW: CrewMember[] = [
     role: "Chef scientifique",
     callsign: "SCI-01",
     bio: "Astrophysicien, spécialiste des exoplanètes et des atmosphères rocheuses.",
+    photo: "/astronautes/Astronaut-Patel.png",
   },
   {
     initials: "AL",
@@ -155,6 +159,7 @@ export const CREW: CrewMember[] = [
     role: "Pilote EVA",
     callsign: "EVA-01",
     bio: "Expert des sorties extravéhiculaires et de l'exploration de terrain.",
+    photo: "/astronautes/Astronaut-Laurent.png",
   },
   {
     initials: "TW",
@@ -162,6 +167,7 @@ export const CREW: CrewMember[] = [
     role: "Ingénieure de bord",
     callsign: "ENG-01",
     bio: "Responsable des systèmes du vaisseau et des réparations en vol.",
+    photo: "/astronautes/Astronaut-Wong.png",
   },
   {
     initials: "ES",
@@ -169,6 +175,7 @@ export const CREW: CrewMember[] = [
     role: "Médecin de bord",
     callsign: "MED-01",
     bio: "Spécialiste de la médecine spatiale en mission longue durée.",
+    photo: "/astronautes/Astronaut-Silva.png",
   },
   {
     initials: "ND",
@@ -176,6 +183,7 @@ export const CREW: CrewMember[] = [
     role: "Officier communications",
     callsign: "COM-01",
     bio: "Assure la liaison permanente entre l'Odyssey IV et la Terre.",
+    photo: "/astronautes/Astronaut-Davis.png",
   },
 ]
 
@@ -207,6 +215,72 @@ export const POLARIS_PILLARS = [
     title: "Raconter",
     description:
       "Donner du sens à l'aventure : communiqués, visuels, vidéos, et ce site.",
+  },
+]
+
+/**
+ * Galerie « premières images » de Kepler-452c.
+ * Visuels d'illustration (placeholders) en attendant les rendus de l'équipe.
+ * L'ordre correspond aux fichiers /public/gallery/kepler-01..06.jpg.
+ * Légende imposée par le brief : lieu, date, astronaute.
+ */
+export type GalleryShot = {
+  id: string
+  title: string
+  location: string
+  date: string
+  author: string
+  alt: string
+}
+
+export const GALLERY: GalleryShot[] = [
+  {
+    id: "kepler-01",
+    title: "Kepler-452c, premier hémisphère",
+    location: "Orbite haute · insertion",
+    date: "2079.05.28",
+    author: "Cdt. E. Ripley",
+    alt: "Hémisphère de Kepler-452c, vaste système nuageux en spirale visible au pôle.",
+  },
+  {
+    id: "kepler-02",
+    title: "Sonde d'observation en approche",
+    location: "Orbite d'insertion · 42 000 km",
+    date: "2079.05.28",
+    author: "Lt. A. Laurent",
+    alt: "Sonde d'observation survolant la surface rougeâtre et cratérisée de Kepler-452c.",
+  },
+  {
+    id: "kepler-03",
+    title: "Largage de la sonde atmosphérique",
+    location: "Couloir d'approche",
+    date: "2079.05.29",
+    author: "Spc. T. Wong",
+    alt: "Sonde atmosphérique déployant son antenne au-dessus de la planète.",
+  },
+  {
+    id: "kepler-04",
+    title: "Reliefs du grand rift",
+    location: "Survol basse altitude",
+    date: "2079.05.29",
+    author: "Dr. S. Patel",
+    alt: "Chaînes de reliefs et vallées d'un grand rift à la surface de Kepler-452c.",
+  },
+  {
+    id: "kepler-05",
+    title: "Canyon, ligne du terminateur",
+    location: "Quart bâbord · orbite stable",
+    date: "2079.05.30",
+    author: "Spc. N. Davis",
+    alt: "Surface de Kepler-452c le long du terminateur, sonde visible en orbite.",
+  },
+  {
+    id: "kepler-06",
+    title: "Calotte glaciaire, cratère polaire",
+    location: "Pôle nord · Kepler-452c",
+    date: "2079.05.30",
+    author: "Dr. E. Silva",
+    alt: "Grand cratère polaire au dépôt de glace clair en son centre.",
   },
 ]
 

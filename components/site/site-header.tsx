@@ -60,7 +60,7 @@ export function SiteHeader() {
             <BrandMark className="h-5 w-auto md:h-6" />
           </a>
 
-          <nav className="hidden items-center gap-9 md:flex">
+          <nav className="hidden items-center gap-5 md:flex lg:gap-8">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
@@ -73,7 +73,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button asChild size="sm" className="hidden sm:inline-flex">
+            <Button asChild size="sm" className="hidden lg:inline-flex">
               <a href="#mission">
                 Suivre la mission
                 <MoveRight />
