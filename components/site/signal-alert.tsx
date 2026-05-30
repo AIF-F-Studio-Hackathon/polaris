@@ -16,7 +16,7 @@ export function SignalAlert() {
   return (
     <section
       id="veille"
-      className="relative scroll-mt-28 overflow-hidden border-t border-border bg-background py-20 md:py-28"
+      className="dark dot-grid relative scroll-mt-28 overflow-hidden border-t border-border bg-background py-20 text-foreground md:py-28"
     >
       <OrbitArc className="pointer-events-none absolute -top-44 -right-40 size-[30rem] border-primary/30" />
       <PlusMark className="pointer-events-none absolute top-20 left-[7%] text-foreground/20" />
@@ -41,7 +41,7 @@ export function SignalAlert() {
         <Reveal delay={120} className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Colonne gauche : communiqué + fiche technique */}
           <div className="lg:col-span-7">
-            <div className="flex items-center gap-4 border-y border-foreground/15 py-5">
+            <div className="flex items-center gap-4 border-y border-border py-5">
               <AnomalyPulse />
               <div className="flex-1">
                 <p className="font-mono text-[0.625rem] tracking-[0.2em] text-muted-foreground uppercase">
@@ -62,13 +62,13 @@ export function SignalAlert() {
             </p>
 
             {/* Fiche technique : lignes à pointillés (relevé) */}
-            <dl className="mt-10 border-t border-foreground/15">
+            <dl className="mt-10 border-t border-border">
               {SIGNAL.fields.map((field) => {
                 const hidden = field.sensitive && !isPublic
                 return (
                   <div
                     key={field.label}
-                    className="flex items-baseline gap-4 border-b border-foreground/15 py-4 font-mono text-xs uppercase"
+                    className="flex items-baseline gap-4 border-b border-border py-4 font-mono text-xs uppercase"
                   >
                     <dt className="shrink-0 tracking-[0.14em] text-muted-foreground">
                       {field.label}
@@ -97,7 +97,7 @@ export function SignalAlert() {
 
           {/* Colonne droite : mises à jour (registre) */}
           <div className="lg:col-span-5">
-            <div className="flex items-center justify-between gap-4 border-b border-foreground/15 pb-4">
+            <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
               <span className="font-heading text-xs font-semibold tracking-[0.3em] uppercase">
                 Mises à jour
               </span>
@@ -107,7 +107,7 @@ export function SignalAlert() {
               </span>
             </div>
 
-            <ol className="mt-6 space-y-6 border-l border-foreground/15 pl-6">
+            <ol className="mt-6 space-y-6 border-l border-border pl-6">
               {SIGNAL.updates.map((u, i) => (
                 <li key={i} className="relative">
                   <span className="absolute top-1.5 -left-[1.7rem] size-2 rounded-full bg-primary" />
