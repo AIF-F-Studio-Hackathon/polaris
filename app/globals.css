@@ -263,9 +263,26 @@
 }
 @keyframes glitch-bar {
   0%, 100% { opacity: 0; transform: translateY(-30vh); }
-  47% { opacity: 0; transform: translateY(20vh); }
-  50% { opacity: 0.9; transform: translateY(45vh); }
-  53% { opacity: 0; transform: translateY(70vh); }
+  28% { opacity: 0; transform: translateY(0vh); }
+  30% { opacity: 0.85; transform: translateY(20vh); }
+  33% { opacity: 0; transform: translateY(40vh); }
+  62% { opacity: 0; transform: translateY(40vh); }
+  64% { opacity: 0.85; transform: translateY(65vh); }
+  67% { opacity: 0; transform: translateY(90vh); }
+}
+@keyframes block-jitter {
+  0%, 84%, 100% { transform: translate(0, 0); filter: none; }
+  86% { transform: translate(-3px, 1px); }
+  88% { transform: translate(4px, -1px); filter: hue-rotate(20deg); }
+  90% { transform: translate(-2px, 0); }
+  92% { transform: translate(2px, 1px); }
+}
+@keyframes img-glitch {
+  0%, 88%, 100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); filter: saturate(1); }
+  89% { clip-path: inset(20% 0 40% 0); transform: translate(-6px, 0); filter: saturate(1.8) hue-rotate(-20deg); }
+  91% { clip-path: inset(55% 0 12% 0); transform: translate(6px, 0); }
+  93% { clip-path: inset(8% 0 70% 0); transform: translate(-4px, 0); filter: saturate(0.6); }
+  95% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
 }
 
 /* Lignes de balayage (scanlines) — surcouche fixe, constante */
@@ -275,14 +292,15 @@ html.degraded body::before {
   inset: 0;
   z-index: 90;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    color-mix(in oklch, var(--foreground) 22%, transparent) 0,
-    color-mix(in oklch, var(--foreground) 22%, transparent) 1px,
-    transparent 1px,
-    transparent 4px
-  );
-  opacity: 0.6;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in oklch, var(--foreground) 28%, transparent) 0,
+      color-mix(in oklch, var(--foreground) 28%, transparent) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  opacity: 0.7;
 }
 /* Bruit statique animé + scintillement */
 html.degraded body::after {
@@ -292,43 +310,74 @@ html.degraded body::after {
   z-index: 91;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  opacity: 0.12;
-  animation: static-noise 0.35s steps(4) infinite, comms-flicker 4s linear infinite;
+  background-size: 220px 220px;
+  opacity: 0.2;
+  animation: static-noise 0.28s steps(4) infinite, comms-flicker 3s linear infinite;
 }
-/* Bande de glitch horizontale qui balaie l'écran périodiquement */
+/* Bande de glitch horizontale qui balaie l'écran (2 passages par cycle) */
 html.degraded::after {
   content: "";
   position: fixed;
   inset-inline: 0;
   top: 0;
-  height: 22vh;
+  height: 26vh;
   z-index: 92;
   pointer-events: none;
   background: linear-gradient(
     180deg,
     transparent,
-    color-mix(in oklch, var(--alert) 30%, transparent) 45%,
-    color-mix(in oklch, oklch(0.7 0.18 210) 28%, transparent) 55%,
+    color-mix(in oklch, var(--alert) 38%, transparent) 42%,
+    color-mix(in oklch, oklch(0.7 0.18 210) 34%, transparent) 58%,
     transparent
   );
   mix-blend-mode: screen;
-  animation: glitch-bar 6.5s ease-in-out infinite;
+  animation: glitch-bar 4.5s ease-in-out infinite;
 }
 
 /* Titres : aberration chromatique constante + déchirure périodique */
 html.degraded h1,
 html.degraded h2,
-html.degraded h3 {
+html.degraded h3,
+html.degraded h4 {
   text-shadow:
-    0.045em 0 oklch(0.62 0.26 25 / 0.75),
-    -0.045em 0 oklch(0.7 0.2 210 / 0.75);
+    0.05em 0 oklch(0.62 0.26 25 / 0.85),
+    -0.05em 0 oklch(0.7 0.2 210 / 0.85);
 }
-html.degraded h1,
-html.degraded h2 {
-  animation: heading-tear 4.5s steps(1) infinite;
+html.degraded h1 { animation: heading-tear 3.5s steps(1) infinite; }
+html.degraded h2 { animation: heading-tear 4s steps(1) infinite 1.1s; }
+html.degraded h3 { animation: heading-tear 5s steps(1) infinite 2.3s; }
+
+/* Aberration plus discrète sur le corps de texte, liens, données mono */
+html.degraded p,
+html.degraded li,
+html.degraded a,
+html.degraded dd,
+html.degraded dt,
+html.degraded .font-mono,
+html.degraded [class*="font-mono"] {
+  text-shadow:
+    0.02em 0 oklch(0.62 0.26 25 / 0.6),
+    -0.02em 0 oklch(0.7 0.2 210 / 0.6);
 }
-html.degraded h2 { animation-delay: 1.6s; }
+
+/* Secousse périodique de blocs (boutons, cartes, lignes de tableau) */
+html.degraded button,
+html.degraded [data-slot="badge"],
+html.degraded [data-slot="accordion-item"],
+html.degraded figure {
+  animation: block-jitter 5.5s steps(1) infinite;
+}
+html.degraded [data-slot="accordion-item"]:nth-child(2n) { animation-delay: 1.3s; }
+html.degraded [data-slot="accordion-item"]:nth-child(3n) { animation-delay: 2.7s; }
+html.degraded figure:nth-child(2n) { animation-delay: 0.9s; }
+html.degraded figure:nth-child(3n) { animation-delay: 2.1s; }
+
+/* Images : décrochage / déchirure périodique */
+html.degraded img {
+  animation: img-glitch 6s steps(1) infinite;
+}
+html.degraded figure:nth-child(2n) img { animation-delay: 1.7s; }
+html.degraded figure:nth-child(3n) img { animation-delay: 3.4s; }
 
 /* Texte à fendillement RGB (bandeau, libellés) */
 .glitch-text { position: relative; display: inline-block; }
@@ -340,14 +389,22 @@ html.degraded .glitch-text::after {
   pointer-events: none;
 }
 html.degraded .glitch-text::before {
-  left: 2px;
-  text-shadow: -2px 0 oklch(0.62 0.26 25);
-  animation: glitch-rgb 1.6s steps(2) infinite;
+  left: 3px;
+  text-shadow: -3px 0 oklch(0.62 0.26 25);
+  animation: glitch-rgb 1.2s steps(2) infinite;
 }
 html.degraded .glitch-text::after {
-  left: -2px;
-  text-shadow: 2px 0 oklch(0.7 0.2 210);
-  animation: glitch-rgb 1.2s steps(2) infinite reverse;
+  left: -3px;
+  text-shadow: 3px 0 oklch(0.7 0.2 210);
+  animation: glitch-rgb 0.9s steps(2) infinite reverse;
+}
+
+/* Texte corrompu (scramble JS) : caractères de remplacement en orange */
+html.degraded .is-scrambling {
+  color: var(--primary);
+  text-shadow:
+    0.05em 0 oklch(0.62 0.26 25 / 0.9),
+    -0.05em 0 oklch(0.7 0.2 210 / 0.9);
 }
 
 /* Balayage lumineux sur le bandeau d'alerte */
@@ -359,10 +416,10 @@ html.degraded .comms-alert::after {
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in oklch, var(--alert-foreground) 28%, transparent),
+    color-mix(in oklch, var(--alert-foreground) 30%, transparent),
     transparent
   );
-  animation: comms-sweep 4s linear infinite;
+  animation: comms-sweep 3s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -378,11 +435,17 @@ html.degraded .comms-alert::after {
   .reveal { opacity: 1 !important; transform: none !important; }
   .marquee-track { animation: none !important; }
   /* Mode dégradé : on garde les scanlines + l'aberration chromatique,
-     sans mouvement (static figé, pas de bande de glitch). */
-  html.degraded body::after { animation: none !important; opacity: 0.1; }
+     sans mouvement (static figé, pas de bandes ni secousses). */
+  html.degraded body::after { animation: none !important; opacity: 0.14; }
   html.degraded::after { display: none; }
   html.degraded h1,
-  html.degraded h2 { animation: none !important; }
+  html.degraded h2,
+  html.degraded h3,
+  html.degraded button,
+  html.degraded figure,
+  html.degraded img,
+  html.degraded [data-slot="accordion-item"],
+  html.degraded [data-slot="badge"] { animation: none !important; }
   html.degraded .glitch-text::before { animation: none !important; opacity: 0.6; }
   html.degraded .glitch-text::after { animation: none !important; opacity: 0.6; }
   html.degraded .comms-alert::after { display: none; }

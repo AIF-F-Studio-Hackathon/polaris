@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { TextCorruption } from "@/components/site/degraded-mode"
 import { cn } from "@/lib/utils"
 
 /* Polices de la cellule (charte SOC-01), servies depuis /public/typo */
@@ -122,6 +123,7 @@ export default function RootLayout({
           }}
         />
         <ThemeProvider forcedTheme="light">{children}</ThemeProvider>
+        <TextCorruption />
       </body>
     </html>
   )

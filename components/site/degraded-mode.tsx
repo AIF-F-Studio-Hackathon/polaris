@@ -59,6 +59,100 @@ export function useDegraded() {
   return { degraded, setDegraded }
 }
 
+/**
+ * Corruption de texte (scramble JS). Quand le mode dégradé est actif, on
+ * remplace par intermittence les caractères de quelques éléments de texte
+ * par du "bruit", puis on rétablit l'original. Aucun texte n'est perdu
+ * (l'original est restauré), le site reste lisible entre deux corruptions.
+ */
+const GLYPHS = "!<>-_\\/[]{}=+*^?#________01010111░▒▓█≡╳※"
+
+function scrambleOnce(el: HTMLElement) {
+  const original = el.dataset.original ?? el.textContent ?? ""
+  if (!el.dataset.original) el.dataset.original = original
+  if (!original.trim()) return
+
+  el.classList.add("is-scrambling")
+  let frame = 0
+  const totalFrames = 6 + Math.floor(original.length % 6)
+
+  const tick = () => {
+    const progress = frame / totalFrames
+    const revealCount = Math.floor(original.length * progress)
+    let out = ""
+    for (let i = 0; i < original.length; i++) {
+      const ch = original[i]
+      if (ch === " " || ch === "\n") {
+        out += ch
+      } else if (i < revealCount) {
+        out += ch
+      } else {
+        out += GLYPHS[(frame * 7 + i * 13) % GLYPHS.length]
+      }
+    }
+    el.textContent = out
+    frame++
+    if (frame <= totalFrames) {
+      el.dataset.raf = String(requestAnimationFrame(tick))
+    } else {
+      el.textContent = original
+      el.classList.remove("is-scrambling")
+      delete el.dataset.raf
+    }
+  }
+  tick()
+}
+
+/**
+ * Pilote global de corruption : monté une fois (layout). Cible les éléments
+ * portant `data-corrupt` ainsi qu'un échantillon de titres/libellés, et en
+ * corrompt quelques-uns à intervalle régulier tant que le mode est dégradé.
+ */
+export function TextCorruption() {
+  const { degraded } = useDegraded()
+
+  React.useEffect(() => {
+    if (!degraded) return
+    if (typeof window === "undefined") return
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+
+    let timer: number
+    const burst = () => {
+      const nodes = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "[data-corrupt], main h1, main h2, main h3, .font-mono"
+        )
+      ).filter((el) => {
+        if (el.dataset.raf) return false
+        const r = el.getBoundingClientRect()
+        return r.top < window.innerHeight && r.bottom > 0 && r.width > 0
+      })
+
+      // 1 à 3 éléments visibles, choisis de façon déterministe sur l'horloge
+      const count = nodes.length ? 1 + (Math.floor(performance.now() / 700) % 3) : 0
+      for (let k = 0; k < count && nodes.length; k++) {
+        const idx = Math.floor((performance.now() / (130 + k * 90)) % nodes.length)
+        scrambleOnce(nodes[idx])
+      }
+      timer = window.setTimeout(burst, 900)
+    }
+    timer = window.setTimeout(burst, 600)
+
+    return () => {
+      window.clearTimeout(timer)
+      // rétablir tout texte resté corrompu
+      document.querySelectorAll<HTMLElement>(".is-scrambling").forEach((el) => {
+        if (el.dataset.raf) cancelAnimationFrame(Number(el.dataset.raf))
+        if (el.dataset.original) el.textContent = el.dataset.original
+        el.classList.remove("is-scrambling")
+        delete el.dataset.raf
+      })
+    }
+  }, [degraded])
+
+  return null
+}
+
 /** Texte à fendillement RGB (ne s'active que sous .degraded, via le CSS). */
 export function GlitchText({
   text,
