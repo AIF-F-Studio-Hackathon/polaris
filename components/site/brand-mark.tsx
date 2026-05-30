@@ -12,14 +12,21 @@ const STAR_PATH =
  * selon le fond pour préserver le contraste.
  */
 export function BrandMark({
-  onDark = false,
+  onDark,
   className,
 }: {
+  /**
+   * Forçage manuel optionnel. Par défaut le logo suit le scope de thème :
+   * le wordmark prend --foreground et l'étoile --background, qui s'inversent
+   * automatiquement sous `.dark`. Le carré reste orange.
+   */
   onDark?: boolean
   className?: string
 }) {
-  const wordmark = onDark ? "#FFFCF2" : "#252422"
-  const star = onDark ? "#252422" : "#FFFCF2"
+  const wordmark =
+    onDark === undefined ? "var(--foreground)" : onDark ? "#FFFCF2" : "#252422"
+  const star =
+    onDark === undefined ? "var(--background)" : onDark ? "#252422" : "#FFFCF2"
 
   return (
     <svg
