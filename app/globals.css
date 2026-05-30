@@ -5,7 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    --font-display: var(--font-display);
+    --font-heading: var(--font-heading);
+    --font-mono: var(--font-mono);
     --font-sans: var(--font-sans);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -47,73 +49,79 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ============================================================
+   POLARIS — SOC-01 · DA éditoriale suisse / signalétique transit
+   Crème #FFFCF2 · encre #252422 · orange #FA4403 · beige #CCC5B9
+   À plat : pas de glow, pas de glass. Angles vifs.
+   ============================================================ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.147 0.004 49.3);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.147 0.004 49.3);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.147 0.004 49.3);
-    --primary: oklch(0.553 0.195 38.402);
-    --primary-foreground: oklch(0.98 0.016 73.684);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.96 0.002 17.2);
-    --muted-foreground: oklch(0.547 0.021 43.1);
-    --accent: oklch(0.96 0.002 17.2);
-    --accent-foreground: oklch(0.214 0.009 43.1);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0.005 34.3);
-    --input: oklch(0.922 0.005 34.3);
-    --ring: oklch(0.714 0.014 41.2);
-    --chart-1: oklch(0.837 0.128 66.29);
-    --chart-2: oklch(0.705 0.213 47.604);
-    --chart-3: oklch(0.646 0.222 41.116);
-    --chart-4: oklch(0.553 0.195 38.402);
-    --chart-5: oklch(0.47 0.157 37.304);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.986 0.002 67.8);
-    --sidebar-foreground: oklch(0.147 0.004 49.3);
-    --sidebar-primary: oklch(0.646 0.222 41.116);
-    --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
-    --sidebar-accent: oklch(0.96 0.002 17.2);
-    --sidebar-accent-foreground: oklch(0.214 0.009 43.1);
-    --sidebar-border: oklch(0.922 0.005 34.3);
-    --sidebar-ring: oklch(0.714 0.014 41.2);
+    --background: oklch(0.986 0.008 95);
+    --foreground: oklch(0.235 0.004 70);
+    --card: oklch(0.995 0.004 95);
+    --card-foreground: oklch(0.235 0.004 70);
+    --popover: oklch(0.995 0.004 95);
+    --popover-foreground: oklch(0.235 0.004 70);
+    --primary: oklch(0.635 0.233 36);
+    --primary-foreground: oklch(0.986 0.008 95);
+    --secondary: oklch(0.93 0.011 86);
+    --secondary-foreground: oklch(0.3 0.006 73);
+    --muted: oklch(0.945 0.009 88);
+    --muted-foreground: oklch(0.48 0.011 72);
+    --accent: oklch(0.93 0.011 86);
+    --accent-foreground: oklch(0.235 0.004 70);
+    --destructive: oklch(0.55 0.2 28);
+    --border: oklch(0.8 0.013 82);
+    --input: oklch(0.8 0.013 82);
+    --ring: oklch(0.635 0.233 36);
+    --chart-1: oklch(0.635 0.233 36);
+    --chart-2: oklch(0.68 0.16 45);
+    --chart-3: oklch(0.55 0.18 35);
+    --chart-4: oklch(0.355 0.006 73);
+    --chart-5: oklch(0.8 0.013 82);
+    --radius: 0rem;
+    --sidebar: oklch(0.995 0.004 95);
+    --sidebar-foreground: oklch(0.235 0.004 70);
+    --sidebar-primary: oklch(0.635 0.233 36);
+    --sidebar-primary-foreground: oklch(0.986 0.008 95);
+    --sidebar-accent: oklch(0.93 0.011 86);
+    --sidebar-accent-foreground: oklch(0.235 0.004 70);
+    --sidebar-border: oklch(0.8 0.013 82);
+    --sidebar-ring: oklch(0.635 0.233 36);
 }
 
+/* Bandes sombres (footer, manifeste) — encre profonde, jamais #000 */
 .dark {
-    --background: oklch(0.147 0.004 49.3);
-    --foreground: oklch(0.986 0.002 67.8);
-    --card: oklch(0.214 0.009 43.1);
-    --card-foreground: oklch(0.986 0.002 67.8);
-    --popover: oklch(0.214 0.009 43.1);
-    --popover-foreground: oklch(0.986 0.002 67.8);
-    --primary: oklch(0.47 0.157 37.304);
-    --primary-foreground: oklch(0.98 0.016 73.684);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.268 0.011 36.5);
-    --muted-foreground: oklch(0.714 0.014 41.2);
-    --accent: oklch(0.268 0.011 36.5);
-    --accent-foreground: oklch(0.986 0.002 67.8);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.547 0.021 43.1);
-    --chart-1: oklch(0.837 0.128 66.29);
-    --chart-2: oklch(0.705 0.213 47.604);
-    --chart-3: oklch(0.646 0.222 41.116);
-    --chart-4: oklch(0.553 0.195 38.402);
-    --chart-5: oklch(0.47 0.157 37.304);
-    --sidebar: oklch(0.214 0.009 43.1);
-    --sidebar-foreground: oklch(0.986 0.002 67.8);
-    --sidebar-primary: oklch(0.705 0.213 47.604);
-    --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
-    --sidebar-accent: oklch(0.268 0.011 36.5);
-    --sidebar-accent-foreground: oklch(0.986 0.002 67.8);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.547 0.021 43.1);
+    --background: oklch(0.235 0.004 70);
+    --foreground: oklch(0.986 0.008 95);
+    --card: oklch(0.28 0.005 72);
+    --card-foreground: oklch(0.986 0.008 95);
+    --popover: oklch(0.28 0.005 72);
+    --popover-foreground: oklch(0.986 0.008 95);
+    --primary: oklch(0.66 0.23 38);
+    --primary-foreground: oklch(0.986 0.008 95);
+    --secondary: oklch(0.31 0.006 72);
+    --secondary-foreground: oklch(0.986 0.008 95);
+    --muted: oklch(0.31 0.006 72);
+    --muted-foreground: oklch(0.74 0.012 84);
+    --accent: oklch(0.31 0.006 72);
+    --accent-foreground: oklch(0.986 0.008 95);
+    --destructive: oklch(0.62 0.2 28);
+    --border: color-mix(in oklch, oklch(0.986 0.008 95) 16%, transparent);
+    --input: color-mix(in oklch, oklch(0.986 0.008 95) 20%, transparent);
+    --ring: oklch(0.66 0.23 38);
+    --chart-1: oklch(0.66 0.23 38);
+    --chart-2: oklch(0.68 0.16 45);
+    --chart-3: oklch(0.55 0.18 35);
+    --chart-4: oklch(0.8 0.013 82);
+    --chart-5: oklch(0.986 0.008 95);
+    --sidebar: oklch(0.28 0.005 72);
+    --sidebar-foreground: oklch(0.986 0.008 95);
+    --sidebar-primary: oklch(0.66 0.23 38);
+    --sidebar-primary-foreground: oklch(0.986 0.008 95);
+    --sidebar-accent: oklch(0.31 0.006 72);
+    --sidebar-accent-foreground: oklch(0.986 0.008 95);
+    --sidebar-border: color-mix(in oklch, oklch(0.986 0.008 95) 16%, transparent);
+    --sidebar-ring: oklch(0.66 0.23 38);
 }
 
 @layer base {
@@ -122,11 +130,98 @@
     }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
     }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
     }
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    }
+}
+
+/* ============================================================
+   Motion — sobre, ease-out (pas de bounce, pas de propriété de layout)
+   ============================================================ */
+@keyframes signal-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 60%, transparent); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+@layer utilities {
+  /* Trame de points (carte stellaire / blueprint) */
+  .dot-grid {
+    background-image: radial-gradient(
+      color-mix(in oklch, var(--foreground) 18%, transparent) 1px,
+      transparent 1.6px
+    );
+    background-size: 24px 24px;
+    background-position: -1px -1px;
+  }
+  /* Grille fil-de-fer (bloc wireframe du board) */
+  .grid-cells {
+    background-image:
+      linear-gradient(to right, currentColor 1px, transparent 1px),
+      linear-gradient(to bottom, currentColor 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  /* Hachures diagonales (encre / orange) */
+  .stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0,
+      currentColor 5px,
+      transparent 5px,
+      transparent 11px
+    );
+  }
+  /* Apparition au scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  .anim-rise { animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .anim-orbit { animation: orbit-spin 90s linear infinite; }
+  .signal-dot { animation: signal-pulse 2.6s ease-out infinite; }
+  .marquee-track { animation: marquee 42s linear infinite; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .marquee-track { animation: none !important; }
 }
