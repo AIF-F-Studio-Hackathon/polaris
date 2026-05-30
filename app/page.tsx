@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site/site-header"
+import { EmergencyBanner } from "@/components/site/emergency-banner"
 import { Hero } from "@/components/site/hero"
 import { MissionStats } from "@/components/site/mission-stats"
 import { Objectives } from "@/components/site/objectives"
@@ -14,6 +15,7 @@ export default function Page() {
     <>
       <SiteHeader />
       <main>
+        <EmergencyBanner />
         <Hero />
         <MissionStats />
         <Objectives />

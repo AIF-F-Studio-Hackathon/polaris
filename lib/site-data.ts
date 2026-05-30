@@ -14,6 +14,7 @@ export const NAV_LINKS = [
   { label: "Équipage", href: "/#equipage" },
   { label: "EVA", href: "/eva" },
   { label: "Découverte", href: "/decouverte" },
+  { label: "Crise", href: "/crise" },
   { label: "Journal", href: "/journal" },
 ] as const
 
@@ -627,6 +628,232 @@ export const DISCOVERY = {
       text: "Découverte confirmée par recoupement des mesures. Activation du Protocole NOVA et ouverture de la communication publique.",
     },
   ] as DiscoveryUpdate[],
+}
+
+/**
+ * Centre de crise en ligne (EVT-11).
+ *
+ * Section d'urgence qui centralise l'information vérifiée pendant la crise
+ * médiatique : démenti officiel, démentis point par point, preuves, message
+ * de l'équipage et FAQ. Ton officiel, factuel, rassurant. Chaque information
+ * est horodatée.
+ *
+ * ÉTAT : CRISIS.active pilote la bannière d'urgence sur l'accueil et l'état
+ * de la page. Passer à `false` lèvera l'alerte. Le registre CRISIS.updates
+ * et les listes (rumors / proofs) sont prêts à accueillir la suite.
+ */
+export type CrisisVerdict = "faux" | "verifie" | "en-cours"
+
+export type CrisisRumor = {
+  time: string
+  claim: string
+  verdict: CrisisVerdict
+  response: string
+}
+
+export type CrisisProof = {
+  ref: string
+  time: string
+  label: string
+  description: string
+}
+
+export type CrisisFaq = {
+  q: string
+  a: string
+}
+
+export type CrisisUpdate = {
+  date: string
+  time: string
+  text: string
+}
+
+export const CRISIS = {
+  active: true,
+  ref: "EVT-11",
+  level: "Niveau 3 · Crise médiatique",
+  status: "Cellule de crise activée",
+  date: "2079.05.30",
+  startTime: "22:00 UTC",
+  updatedTime: "22:48 UTC",
+  // Bannière d'urgence (accueil) : accès prioritaire au centre de crise.
+  banner: {
+    label: "Alerte",
+    text: "Désinformation en cours sur la mission AURORA. Consultez les informations officielles vérifiées.",
+    cta: "Accéder au centre de crise",
+  },
+  intro:
+    "Une campagne de désinformation circule actuellement au sujet de la mission AURORA, sur deux fronts : une rumeur virale (#AuroraAlien) et une manipulation interne de notre classement. Cette page centralise les informations officielles, vérifiées et horodatées par la cellule POLARIS. Nous démentons formellement les contenus mensongers et reconnaissons sans détour les faits internes.",
+  // Volet transparence (EVT-10) : la manipulation interne du classement.
+  manipulation: {
+    ref: "EVT-10",
+    time: "19:00 UTC",
+    title: "Manipulation interne du classement",
+    figure: "3 600+",
+    figureLabel: "crédits mission frauduleux retirés",
+    body: [
+      "Le 30 mai à 19:00, la sécurité du CCA a identifié une cellule de communication ayant manipulé les systèmes de scoring du Centre de Contrôle. Plus de 3 600 crédits mission (CM) frauduleux avaient été injectés dans le classement.",
+      "Nous le reconnaissons sans détour. Les crédits mission frauduleux ont été identifiés et retirés, le classement est en cours de correction, et la cellule responsable a été écartée du programme.",
+      "Cet incident n'affecte ni la sécurité de l'équipage, ni les données scientifiques de la mission, qui restent intègres et vérifiées.",
+    ],
+  },
+  // Réaction de l'équipage (EVT-10) : message de la commandante.
+  crewStatement: {
+    time: "19:12 UTC",
+    author: "Cdt. E. Ripley · Commandante de mission",
+    text: "On vient de voir le hashtag #AuroraAlien. C'est n'importe quoi. Nous avons trouvé une structure cristalline, pas des petits hommes verts. Et pour la cellule qui a triché… on est déçus. L'équipage est unanime : restez factuel, restez intègre. On compte sur vous.",
+  },
+  // Démenti officiel — calme, clair, central.
+  denial: {
+    time: "22:30 UTC",
+    title: "Démenti officiel",
+    body: [
+      "Aucune forme de vie, aucun être vivant n'a été observé à bord de l'Odyssey IV ni sur Kepler-452c. La vidéo montrant un prétendu « passager » à l'intérieur du vaisseau est un faux, généré artificiellement. Elle ne provient d'aucune transmission de l'équipage.",
+      "La découverte annoncée le 30 mai (EVT-09) concerne une structure d'origine inconnue, un phénomène naturel inexpliqué. Elle ne constitue en rien la preuve d'une présence vivante.",
+      "L'équipage est en sécurité, en bonne santé, et poursuit sa mission normalement. La cellule POLARIS reste l'unique source officielle d'information sur la mission AURORA.",
+    ],
+  },
+  // Démentis point par point : ce qui circule / ce que nous confirmons.
+  rumors: [
+    {
+      time: "19:05 UTC",
+      claim: "#AuroraAlien : le CCA cacherait une forme de vie extraterrestre.",
+      verdict: "faux",
+      response:
+        "Aucune forme de vie n'a été découverte. L'observation du 30 mai est une structure cristalline d'origine inconnue, documentée publiquement sur notre page Découverte. La rumeur a été lancée par un compte complotiste, puis reprise sans vérification.",
+    },
+    {
+      time: "22:18 UTC",
+      claim: "Une vidéo montrerait un « alien » à l'intérieur de l'Odyssey IV.",
+      verdict: "faux",
+      response:
+        "La vidéo est un deepfake. Analyse d'authenticité à l'appui (voir preuves PRV-11-01) : montage artificiel, absente des journaux de transmission du vaisseau. Aucune image de ce type n'a été reçue ni diffusée par le CCA.",
+    },
+    {
+      time: "22:22 UTC",
+      claim: "La mission cacherait l'existence d'une vie extraterrestre.",
+      verdict: "faux",
+      response:
+        "La découverte EVT-09 est une structure minérale d'origine inconnue, documentée publiquement et en détail sur notre page Découverte. Aucune observation de l'équipage ne fait état d'un organisme vivant.",
+    },
+    {
+      time: "22:35 UTC",
+      claim: "L'équipage serait en danger ou aurait perdu le contact.",
+      verdict: "faux",
+      response:
+        "La liaison avec l'Odyssey IV est active. Les six membres d'équipage sont en bonne santé. Le dernier relevé de bord est horodaté et consultable dans le Journal de bord.",
+    },
+  ] as CrisisRumor[],
+  // Preuves vérifiées (chaque élément horodaté + référencé).
+  proofs: [
+    {
+      ref: "PRV-11-01",
+      time: "22:24 UTC",
+      label: "Analyse d'authenticité de la vidéo",
+      description:
+        "Rapport technique du CCA : la vidéo « alien » présente des artefacts de génération artificielle (incohérences d'éclairage, signature de compression synthétique). Verdict : contenu falsifié.",
+    },
+    {
+      ref: "PRV-11-02",
+      time: "22:26 UTC",
+      label: "Journaux de transmission de l'Odyssey IV",
+      description:
+        "Les journaux horodatés du vaisseau ne contiennent aucune transmission correspondant à la vidéo en circulation. Toutes les communications reçues sont tracées et vérifiables.",
+    },
+    {
+      ref: "PRV-11-03",
+      time: "22:40 UTC",
+      label: "Relevé médical de l'équipage",
+      description:
+        "Bilan de bord transmis par le Dr. Silva, médecin de la mission : constantes nominales pour les six membres d'équipage. Aucun incident sanitaire.",
+    },
+  ] as CrisisProof[],
+  // Message vidéo de l'équipage (affiche + transcription — source officielle).
+  video: {
+    time: "22:45 UTC",
+    title: "Message de l'équipage de l'Odyssey IV",
+    duration: "1 min 12 s",
+    author: "Cdt. E. Ripley · Commandante de mission",
+    poster: "/astronautes/Astronaut-Ripley.png",
+    transcript:
+      "« Ici la commandante Ripley, à bord de l'Odyssey IV. Nous allons tous bien. Il n'y a personne d'autre que nous six à bord, et il n'y a jamais eu d'être vivant à bord de ce vaisseau. Les images qui circulent sont fausses. Nous avons découvert une formation minérale extraordinaire, c'est vrai, et nous vous la décrivons en toute transparence. Mais ce n'est pas ce que certains prétendent. À nos familles : nous pensons à vous, restez forts. Faites confiance au Centre de Contrôle Aurora. »",
+  },
+  // FAQ publique — questions concrètes des visiteurs et des médias.
+  faq: [
+    {
+      q: "La vidéo de l'« alien » est-elle authentique ?",
+      a: "Non. Il s'agit d'un faux généré artificiellement (deepfake). Elle ne provient d'aucune transmission de l'Odyssey IV et a été authentifiée comme falsifiée par le CCA (preuve PRV-11-01).",
+    },
+    {
+      q: "A-t-on découvert une forme de vie ?",
+      a: "Non. La découverte du 30 mai est une structure d'origine inconnue, un phénomène naturel inexpliqué. Aucun organisme vivant n'a été observé. Le détail est disponible sur la page Découverte.",
+    },
+    {
+      q: "L'équipage est-il en sécurité ?",
+      a: "Oui. Les six membres d'équipage sont en bonne santé et la liaison avec le vaisseau est stable. Le relevé médical de bord (PRV-11-03) le confirme.",
+    },
+    {
+      q: "Je suis un proche d'un membre d'équipage et je suis sollicité par des journalistes. Que faire ?",
+      a: "Vous n'êtes pas tenu de répondre. Le CCA met à disposition une ligne de soutien dédiée aux familles (voir ci-dessous) et peut intervenir auprès des rédactions. Signalez tout harcèlement.",
+    },
+    {
+      q: "Qu'en est-il de la triche au classement du CCA ?",
+      a: "Une cellule de communication a injecté plus de 3 600 crédits mission (CM) frauduleux dans le classement (EVT-10). Nous le reconnaissons : les crédits ont été retirés, le classement est en correction et la cellule a été écartée. Cela n'affecte ni l'équipage, ni les données scientifiques.",
+    },
+    {
+      q: "Où trouver l'information officielle et vérifiée ?",
+      a: "Uniquement ici, sur le site de la cellule POLARIS, et auprès du Centre de Contrôle Aurora. Toute information non horodatée par nos soins doit être considérée avec prudence.",
+    },
+  ] as CrisisFaq[],
+  // Contacts d'urgence.
+  contacts: [
+    {
+      label: "Cellule POLARIS · presse",
+      value: "presse@polaris-aurora.int",
+    },
+    {
+      label: "Ligne de soutien aux familles",
+      value: "familles@polaris-aurora.int",
+    },
+    {
+      label: "Signaler un contenu falsifié",
+      value: "signalement@polaris-aurora.int",
+    },
+  ],
+  // Registre des mises à jour (du plus récent au plus ancien).
+  updates: [
+    {
+      date: "2079.05.30",
+      time: "22:48 UTC",
+      text: "Mise en ligne du centre de crise. Démenti officiel, preuves, message de l'équipage et FAQ publiés.",
+    },
+    {
+      date: "2079.05.30",
+      time: "22:30 UTC",
+      text: "Diffusion du démenti officiel sur tous les canaux de la cellule.",
+    },
+    {
+      date: "2079.05.30",
+      time: "22:00 UTC",
+      text: "Activation de la cellule de crise (EVT-11) suite à la diffusion massive de contenus falsifiés.",
+    },
+    {
+      date: "2079.05.30",
+      time: "19:12 UTC",
+      text: "Réaction publique de la commandante Ripley : appel à rester factuel et intègre.",
+    },
+    {
+      date: "2079.05.30",
+      time: "19:05 UTC",
+      text: "#AuroraAlien en tendance mondiale. Une rumeur complotiste sur une « vie extraterrestre » est reprise par plusieurs médias.",
+    },
+    {
+      date: "2079.05.30",
+      time: "19:00 UTC",
+      text: "Détection d'une manipulation interne du classement (EVT-10) : 3 600+ crédits mission frauduleux. Retrait engagé, cellule responsable écartée.",
+    },
+  ] as CrisisUpdate[],
 }
 
 /** Champ lexical de la cellule (mots à privilégier). */
