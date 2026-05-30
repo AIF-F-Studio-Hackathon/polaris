@@ -22,7 +22,7 @@ export function About() {
         <div className="grid gap-12 lg:grid-cols-12 lg:items-stretch lg:gap-16">
           {/* Texte */}
           <Reveal className="lg:col-span-7">
-            <SectionLabel index="06">À propos de POLARIS</SectionLabel>
+            <SectionLabel index="07">À propos de POLARIS</SectionLabel>
             <h2 className="mt-6 font-heading text-3xl font-bold tracking-tight uppercase md:text-5xl">
               La cellule qui raconte AURORA au monde
             </h2>

@@ -171,6 +171,11 @@
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: none; }
 }
+/* Onde radar de la section veille (EVT-06) */
+@keyframes signal-ring {
+  0% { transform: scale(0.55); opacity: 0.55; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
 
 @layer utilities {
   /* Trame de points (carte stellaire / blueprint) */
@@ -216,6 +221,8 @@
   .anim-orbit { animation: orbit-spin 90s linear infinite; }
   .signal-dot { animation: signal-pulse 2.6s ease-out infinite; }
   .marquee-track { animation: marquee 42s linear infinite; }
+  .signal-ring { animation: signal-ring 4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  .signal-ring-2 { animation-delay: 2s; }
 }
 
 /* ============================================================

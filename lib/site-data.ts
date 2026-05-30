@@ -10,9 +10,10 @@ export const NAV_LINKS = [
   { label: "Objectifs", href: "/#objectifs" },
   { label: "Chronologie", href: "/#chronologie" },
   { label: "Galerie", href: "/#galerie" },
+  { label: "Veille", href: "/#veille" },
   { label: "Équipage", href: "/#equipage" },
-  { label: "Journal", href: "/journal" },
   { label: "À propos", href: "/#apropos" },
+  { label: "Journal", href: "/journal" },
 ] as const
 
 /** Données « boarding-pass » du héro. */
@@ -345,6 +346,66 @@ export const INCIDENTS: Incident[] = [
       "Le capteur est redondant : aucune perte de couverture thermique, aucun effet sur la sécurité de l'équipage. Intervention prise en charge par l'ingénierie de bord (Spc. Wong, Spc. Davis), réparation estimée à 4 heures. Note de l'équipage : « Rien de grave, c'est un capteur redondant. Davis et moi on s'en occupe. Mais bon, 18 mois de voyage, fallait bien qu'un truc lâche un jour. »",
   },
 ]
+
+/**
+ * Système de veille / alerte (EVT-06).
+ *
+ * MÉCANISME CONFIDENTIEL → PUBLIC : il suffit de basculer `SIGNAL.visibility`
+ * de "confidentiel" à "public". En confidentiel, les champs marqués
+ * `sensitive` sont caviardés et le résumé confidentiel est affiché ; en
+ * public, tout est révélé et le résumé public prend le relais.
+ * L'espace « Mises à jour » (SIGNAL.updates) est prêt à accueillir la suite.
+ */
+export type SignalVisibility = "confidentiel" | "public"
+
+export type SignalField = {
+  label: string
+  value: string
+  sensitive?: boolean
+}
+
+export type SignalUpdate = {
+  date: string
+  time: string
+  visibility: SignalVisibility
+  text: string
+}
+
+export const SIGNAL = {
+  // ⇩ Unique interrupteur : passer à "public" révèle tout le contenu.
+  visibility: "confidentiel" as SignalVisibility,
+  ref: "EVT-06",
+  status: "Sous surveillance",
+  classification: "Confidentiel · diffusion restreinte CCA",
+  detectedDate: "2079.05.30",
+  detectedTime: "08:47 UTC",
+  source: "Transmission Odyssey IV · log automatique",
+  // Résumés selon le niveau de diffusion.
+  confidentialSummary:
+    "Un signal anormal a été détecté et consigné automatiquement. Les données sont en cours d'analyse par la cellule. Aucune information complémentaire n'est communiquée à ce stade.",
+  publicSummary:
+    "Détection d'un signal électromagnétique anormal par l'Odyssey IV. La source et les caractéristiques du signal sont en cours d'étude. La cellule POLARIS communiquera chaque élément vérifié dès qu'il sera disponible.",
+  fields: [
+    { label: "Nature", value: "Signal électromagnétique anormal" },
+    { label: "Durée", value: "3 min 42 s" },
+    { label: "Source", value: "Vallée d'Aurelia · secteur 7", sensitive: true },
+    {
+      label: "Fréquence",
+      value: "Non répertoriée dans les bases connues",
+      sensitive: true,
+    },
+    { label: "Équipage", value: "Informé" },
+  ] as SignalField[],
+  // Espace prêt pour les mises à jour à venir (du plus récent au plus ancien).
+  updates: [
+    {
+      date: "2079.05.30",
+      time: "08:47 UTC",
+      visibility: "confidentiel",
+      text: "Détection et consignation automatique du signal. Analyse engagée par la cellule.",
+    },
+  ] as SignalUpdate[],
+}
 
 /** Champ lexical de la cellule (mots à privilégier). */
 export const LEXICON = [

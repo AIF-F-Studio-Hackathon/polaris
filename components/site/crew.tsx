@@ -12,7 +12,7 @@ export function Crew() {
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal className="flex flex-col gap-6">
-          <SectionLabel index="05">Équipage Odyssey IV</SectionLabel>
+          <SectionLabel index="06">Équipage Odyssey IV</SectionLabel>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 className="max-w-2xl font-heading text-3xl font-bold tracking-tight uppercase md:text-5xl">
               Six personnes, 1 400 années-lumière
