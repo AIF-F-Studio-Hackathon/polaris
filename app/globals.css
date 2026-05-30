@@ -360,13 +360,21 @@ html.degraded [class*="font-mono"] {
     -0.02em 0 oklch(0.7 0.2 210 / 0.6);
 }
 
-/* Secousse périodique de blocs (boutons, cartes, lignes de tableau) */
+/* Secousse périodique : appliquée largement (sections, blocs, médias…) */
+html.degraded section,
 html.degraded button,
 html.degraded [data-slot="badge"],
 html.degraded [data-slot="accordion-item"],
-html.degraded figure {
+html.degraded figure,
+html.degraded article,
+html.degraded nav,
+html.degraded ul,
+html.degraded blockquote,
+html.degraded dl {
   animation: block-jitter 5.5s steps(1) infinite;
 }
+html.degraded section:nth-child(2n) { animation-delay: 0.7s; }
+html.degraded section:nth-child(3n) { animation-delay: 1.9s; }
 html.degraded [data-slot="accordion-item"]:nth-child(2n) { animation-delay: 1.3s; }
 html.degraded [data-slot="accordion-item"]:nth-child(3n) { animation-delay: 2.7s; }
 html.degraded figure:nth-child(2n) { animation-delay: 0.9s; }

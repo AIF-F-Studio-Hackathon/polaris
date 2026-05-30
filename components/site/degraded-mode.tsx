@@ -74,11 +74,13 @@ function scrambleOnce(el: HTMLElement) {
 
   el.classList.add("is-scrambling")
   let frame = 0
-  const totalFrames = 6 + Math.floor(original.length % 6)
+  const holdFrames = 10 // reste entièrement brouillé un moment
+  const revealFrames = 12 // puis se rétablit progressivement
+  const totalFrames = holdFrames + revealFrames
 
   const tick = () => {
-    const progress = frame / totalFrames
-    const revealCount = Math.floor(original.length * progress)
+    const revealProgress = Math.max(0, frame - holdFrames) / revealFrames
+    const revealCount = Math.floor(original.length * revealProgress)
     let out = ""
     for (let i = 0; i < original.length; i++) {
       const ch = original[i]
@@ -120,23 +122,31 @@ export function TextCorruption() {
     const burst = () => {
       const nodes = Array.from(
         document.querySelectorAll<HTMLElement>(
-          "[data-corrupt], main h1, main h2, main h3, .font-mono"
+          "[data-corrupt], h1, h2, h3, h4, p, li, a, dd, dt, blockquote, button, span"
         )
       ).filter((el) => {
         if (el.dataset.raf) return false
+        // éléments feuilles uniquement (pas de conteneurs) pour ne pas casser le DOM
+        if (el.children.length > 0) return false
+        const text = el.textContent ?? ""
+        if (text.trim().length < 2) return false
         const r = el.getBoundingClientRect()
         return r.top < window.innerHeight && r.bottom > 0 && r.width > 0
       })
+      if (!nodes.length) {
+        timer = window.setTimeout(burst, 500)
+        return
+      }
 
-      // 1 à 3 éléments visibles, choisis de façon déterministe sur l'horloge
-      const count = nodes.length ? 1 + (Math.floor(performance.now() / 700) % 3) : 0
-      for (let k = 0; k < count && nodes.length; k++) {
-        const idx = Math.floor((performance.now() / (130 + k * 90)) % nodes.length)
+      // 4 à 8 éléments visibles corrompus à chaque salve
+      const count = 4 + (Math.floor(performance.now() / 300) % 5)
+      for (let k = 0; k < count; k++) {
+        const idx = Math.floor((performance.now() / (70 + k * 53)) % nodes.length)
         scrambleOnce(nodes[idx])
       }
-      timer = window.setTimeout(burst, 900)
+      timer = window.setTimeout(burst, 450)
     }
-    timer = window.setTimeout(burst, 600)
+    timer = window.setTimeout(burst, 400)
 
     return () => {
       window.clearTimeout(timer)
