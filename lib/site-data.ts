@@ -6,12 +6,13 @@
  */
 
 export const NAV_LINKS = [
-  { label: "Mission", href: "#mission" },
-  { label: "Objectifs", href: "#objectifs" },
-  { label: "Chronologie", href: "#chronologie" },
-  { label: "Galerie", href: "#galerie" },
-  { label: "Équipage", href: "#equipage" },
-  { label: "À propos", href: "#apropos" },
+  { label: "Mission", href: "/#mission" },
+  { label: "Objectifs", href: "/#objectifs" },
+  { label: "Chronologie", href: "/#chronologie" },
+  { label: "Galerie", href: "/#galerie" },
+  { label: "Équipage", href: "/#equipage" },
+  { label: "Journal", href: "/journal" },
+  { label: "À propos", href: "/#apropos" },
 ] as const
 
 /** Données « boarding-pass » du héro. */
@@ -281,6 +282,54 @@ export const GALLERY: GalleryShot[] = [
     date: "2079.05.30",
     author: "Dr. E. Silva",
     alt: "Grand cratère polaire au dépôt de glace clair en son centre.",
+  },
+]
+
+/**
+ * Journal de bord technique — registre des incidents de la mission.
+ * Ton : technique, transparent, rassurant.
+ * Statut évolutif : "en-cours" → "resolu". Le tableau accueille de futurs
+ * incidents : il suffit d'ajouter une entrée en tête de liste.
+ */
+export type IncidentSeverity = "faible" | "moyenne" | "haute"
+export type IncidentStatus = "en-cours" | "resolu"
+
+export type Incident = {
+  ref: string
+  date: string
+  time: string
+  title: string
+  system: string
+  severity: IncidentSeverity
+  status: IncidentStatus
+  description: string
+  resolution: string
+}
+
+export const SEVERITY_LABEL: Record<IncidentSeverity, string> = {
+  faible: "Faible",
+  moyenne: "Moyenne",
+  haute: "Haute",
+}
+
+export const STATUS_LABEL: Record<IncidentStatus, string> = {
+  "en-cours": "En cours",
+  resolu: "Résolu",
+}
+
+export const INCIDENTS: Incident[] = [
+  {
+    ref: "EVT-02",
+    date: "2079.05.29",
+    time: "22:00 UTC",
+    title: "Défaillance capteur thermique, module 3",
+    system: "Thermique · capteur module 3 (redondant)",
+    severity: "moyenne",
+    status: "en-cours",
+    description:
+      "Défaillance d'un capteur thermique sur le module 3, détectée le 29/05/2079 lors d'une transmission de l'Odyssey IV. Diagnostic en cours. Impact sur la mission : négligeable. Réparation estimée à 4 heures.",
+    resolution:
+      "Le capteur est redondant : aucune perte de couverture thermique, aucun effet sur la sécurité de l'équipage. Intervention prise en charge par l'ingénierie de bord (Spc. Wong, Spc. Davis), réparation estimée à 4 heures. Note de l'équipage : « Rien de grave, c'est un capteur redondant. Davis et moi on s'en occupe. Mais bon, 18 mois de voyage, fallait bien qu'un truc lâche un jour. »",
   },
 ]
 

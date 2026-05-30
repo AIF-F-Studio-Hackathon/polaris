@@ -4,10 +4,10 @@ import { BrandMark } from "@/components/site/brand-mark"
 import { Barcode, LiveDot, OrbitArc, PlusMark } from "@/components/site/decor"
 
 const PROGRAMME_LINKS = [
-  { label: "Programme AURORA", href: "#accueil" },
-  { label: "Odyssey IV", href: "#mission" },
-  { label: "Kepler-452c", href: "#chronologie" },
-  { label: "Équipage", href: "#equipage" },
+  { label: "Programme AURORA", href: "/" },
+  { label: "Odyssey IV", href: "/#mission" },
+  { label: "Galerie", href: "/#galerie" },
+  { label: "Journal de bord", href: "/journal" },
 ]
 
 const LIAISON = [

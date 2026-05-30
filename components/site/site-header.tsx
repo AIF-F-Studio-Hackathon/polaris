@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Menu, MoveRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -52,15 +53,15 @@ export function SiteHeader() {
         )}
       >
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-5 md:h-16 md:px-8">
-          <a
-            href="#accueil"
+          <Link
+            href="/"
             className="flex items-center gap-3"
             aria-label="POLARIS, accueil"
           >
             <BrandMark className="h-5 w-auto md:h-6" />
-          </a>
+          </Link>
 
-          <nav className="hidden items-center gap-5 md:flex lg:gap-8">
+          <nav className="hidden items-center gap-6 lg:flex">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
@@ -74,15 +75,15 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-3">
             <Button asChild size="sm" className="hidden lg:inline-flex">
-              <a href="#mission">
+              <Link href="/#mission">
                 Suivre la mission
                 <MoveRight />
-              </a>
+              </Link>
             </Button>
 
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon-sm" aria-label="Ouvrir le menu" className="md:hidden">
+                <Button variant="outline" size="icon-sm" aria-label="Ouvrir le menu" className="lg:hidden">
                   <Menu />
                 </Button>
               </SheetTrigger>
@@ -115,10 +116,10 @@ export function SiteHeader() {
                 <div className="mt-auto p-6">
                   <SheetClose asChild>
                     <Button asChild className="w-full">
-                      <a href="#mission">
+                      <Link href="/#mission">
                         Suivre la mission
                         <MoveRight />
-                      </a>
+                      </Link>
                     </Button>
                   </SheetClose>
                   <p className="mt-4 flex items-center gap-2 font-mono text-[0.625rem] tracking-[0.18em] text-muted-foreground uppercase">
