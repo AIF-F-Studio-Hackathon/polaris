@@ -12,7 +12,7 @@ export const NAV_LINKS = [
   { label: "Galerie", href: "/#galerie" },
   { label: "Veille", href: "/#veille" },
   { label: "Équipage", href: "/#equipage" },
-  { label: "À propos", href: "/#apropos" },
+  { label: "EVA", href: "/eva" },
   { label: "Journal", href: "/journal" },
 ] as const
 
@@ -405,6 +405,88 @@ export const SIGNAL = {
       text: "Détection et consignation automatique du signal. Analyse engagée par la cellule.",
     },
   ] as SignalUpdate[],
+}
+
+/**
+ * Suivi EVA en direct (EVT-08) — sortie extravéhiculaire, secteur 7.
+ *
+ * STATUT ÉVOLUTIF : EVA.status passe de "en-cours" à "terminee".
+ * Le fil (EVA.feed) s'enrichit en tête ; la section données/images
+ * (EVA.captures) se remplit au fur et à mesure (image optionnelle).
+ */
+export type EvaStatus = "en-cours" | "terminee"
+
+export type EvaFeedEntry = {
+  time: string
+  author: string
+  text: string
+  highlight?: boolean
+}
+
+export type EvaCapture = {
+  ref: string
+  label: string
+  value: string
+  image?: string
+}
+
+export const EVA = {
+  status: "en-cours" as EvaStatus,
+  ref: "EVT-08",
+  title: "Exploration du secteur 7",
+  date: "2079.05.30",
+  startTime: "11:33 UTC",
+  sector: "Secteur 7 · Vallée d'Aurelia",
+  // Équipage en sortie (callsigns définis dans CREW)
+  team: [
+    { name: "Lt. A. Laurent", role: "Pilote EVA", callsign: "EVA-01" },
+    { name: "Spc. T. Wong", role: "Ingénieure de bord", callsign: "ENG-01" },
+  ],
+  // Repère sur la carte du secteur 7 (pourcentages, coin haut-gauche).
+  position: { x: 58, y: 44, label: "Position équipe · 200 m de la cible" },
+  target: { x: 72, y: 36, label: "Cible · formation cristalline" },
+  vitals: [
+    { label: "O₂ Laurent", value: "92 %" },
+    { label: "O₂ Wong", value: "94 %" },
+    { label: "Temps écoulé", value: "T+ 00:41" },
+    { label: "Liaison", value: "Stable" },
+  ],
+  feed: [
+    {
+      time: "12:14 UTC",
+      author: "EVA-01 · Laurent",
+      text: "C'est… c'est une formation cristalline. Jamais vu ça. Elle est translucide, haute d'environ 3 mètres, et elle pulse. Faiblement, mais de manière régulière. Patel va perdre la tête quand il verra les images.",
+      highlight: true,
+    },
+    {
+      time: "11:58 UTC",
+      author: "EVA-01 · Laurent",
+      text: "On aperçoit… attendez… il y a quelque chose qui reflète la lumière à 200 mètres. Ce n'est pas rocheux. On continue.",
+    },
+    {
+      time: "11:33 UTC",
+      author: "CCA · contrôle",
+      text: "Laurent et Wong en approche du secteur 7. Visibilité correcte. Sol stable. Début de la sortie extravéhiculaire.",
+    },
+  ] as EvaFeedEntry[],
+  captures: [
+    {
+      ref: "IMG-08-03",
+      label: "Formation cristalline",
+      value: "≈ 3 m · translucide · pulsation régulière",
+      image: "/gallery/kepler-06.jpg",
+    },
+    {
+      ref: "DAT-08-02",
+      label: "Réflectance anormale",
+      value: "Pic optique à 200 m · non minéral",
+    },
+    {
+      ref: "DAT-08-01",
+      label: "Conditions de terrain",
+      value: "Sol stable · visibilité correcte",
+    },
+  ] as EvaCapture[],
 }
 
 /** Champ lexical de la cellule (mots à privilégier). */

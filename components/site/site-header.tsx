@@ -19,7 +19,7 @@ import { BrandMark } from "@/components/site/brand-mark"
 import { LiveDot } from "@/components/site/decor"
 import { CommsRibbon } from "@/components/site/degraded-mode"
 
-export function SiteHeader() {
+export function SiteHeader({ dark = false }: { dark?: boolean }) {
   const [scrolled, setScrolled] = React.useState(false)
 
   React.useEffect(() => {
@@ -30,7 +30,7 @@ export function SiteHeader() {
   }, [])
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header className={cn("fixed inset-x-0 top-0 z-50", dark && "dark")}>
       {/* Bandeau communications : nominal ou mode dégradé (EVT-04C) */}
       <CommsRibbon />
 
@@ -38,7 +38,11 @@ export function SiteHeader() {
       <div
         className={cn(
           "border-b transition-colors duration-300",
-          scrolled ? "border-border bg-background" : "border-transparent"
+          scrolled
+            ? "border-border bg-background"
+            : dark
+              ? "border-transparent bg-background/80 supports-backdrop-filter:bg-background/40 supports-backdrop-filter:backdrop-blur-md"
+              : "border-transparent"
         )}
       >
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-5 md:h-16 md:px-8">
