@@ -13,6 +13,7 @@ export const NAV_LINKS = [
   { label: "Veille", href: "/#veille" },
   { label: "Équipage", href: "/#equipage" },
   { label: "EVA", href: "/eva" },
+  { label: "Découverte", href: "/decouverte" },
   { label: "Journal", href: "/journal" },
 ] as const
 
@@ -487,6 +488,145 @@ export const EVA = {
       value: "Sol stable · visibilité correcte",
     },
   ] as EvaCapture[],
+}
+
+/**
+ * Découverte majeure (EVT-09) — Protocole NOVA.
+ *
+ * Notification d'Observation Vérifiée Anomale : cadre de communication activé
+ * pour les découvertes majeures. La cellule s'en tient strictement à ce qui
+ * est observé et mesuré.
+ *
+ * DISCIPLINE DE COMMUNICATION (NOVA) — vocabulaire retenu pour toute la page :
+ * « phénomène naturel inexpliqué », « structure d'origine inconnue »,
+ * « découverte scientifique majeure », « anomalie géologique active ».
+ * Aucune interprétation au-delà des données vérifiées.
+ *
+ * ÉVOLUTIF : l'espace DISCOVERY.updates accueille les prochaines analyses
+ * vérifiées (du plus récent au plus ancien).
+ */
+export type DiscoverySpec = {
+  label: string
+  value: string
+  note?: string
+}
+
+export type DiscoveryStep = {
+  ref: string
+  date: string
+  time: string
+  title: string
+  text: string
+  current?: boolean
+}
+
+export type FaqItem = {
+  q: string
+  a: string
+}
+
+export type DiscoveryUpdate = {
+  date: string
+  time: string
+  text: string
+}
+
+export const DISCOVERY = {
+  ref: "EVT-09",
+  protocol: "Protocole NOVA",
+  protocolFull: "Notification d'Observation Vérifiée Anomale",
+  status: "Découverte confirmée",
+  date: "2079.05.30",
+  time: "16:01 UTC",
+  source: "Transmission Odyssey IV",
+  location: "Secteur 7 · Vallée d'Aurelia · Kepler-452c",
+  kicker: "Découverte scientifique majeure",
+  title: "Une structure d'origine inconnue sur Kepler-452c",
+  lede: "Dans la Vallée d'Aurelia, l'équipage de l'Odyssey IV a confirmé l'existence d'une structure cristalline d'origine inconnue. Haute de 3,2 mètres, elle émet une lumière selon un cycle régulier de 47 secondes et génère un champ électromagnétique faible mais mesurable. Ce n'est ni un artefact, ni une défaillance instrumentale : c'est une découverte scientifique majeure.",
+  // Caractéristiques mesurées (visuels + données scientifiques).
+  specs: [
+    { label: "Hauteur", value: "3,2 m", note: "mesure terrain · EVA-01" },
+    { label: "Cycle lumineux", value: "47 s", note: "émission régulière" },
+    {
+      label: "Champ électromagnétique",
+      value: "Faible",
+      note: "mesurable · stable",
+    },
+    { label: "Aspect", value: "Cristallin", note: "translucide" },
+    { label: "Localisation", value: "Secteur 7", note: "Vallée d'Aurelia" },
+    {
+      label: "Qualification",
+      value: "Anomalie géologique active",
+      note: "phénomène naturel inexpliqué",
+    },
+  ] as DiscoverySpec[],
+  // Présentation chronologique de la découverte (relie EVT-06 → EVT-08 → EVT-09).
+  chronology: [
+    {
+      ref: "EVT-06",
+      date: "2079.05.30",
+      time: "08:47 UTC",
+      title: "Premier signal",
+      text: "Un signal électromagnétique anormal est détecté et consigné automatiquement par l'Odyssey IV. Son origine est localisée dans le secteur 7, sans explication à ce stade.",
+    },
+    {
+      ref: "EVT-08",
+      date: "2079.05.30",
+      time: "11:33 UTC",
+      title: "Sortie sur le terrain",
+      text: "Laurent et Wong descendent dans la Vallée d'Aurelia pour remonter à la source du signal. Sol stable, visibilité correcte : l'exploration du secteur 7 commence.",
+    },
+    {
+      ref: "EVT-08",
+      date: "2079.05.30",
+      time: "12:14 UTC",
+      title: "Premier contact visuel",
+      text: "À 200 mètres, une formation translucide réfléchit la lumière. De près, c'est une structure cristalline d'environ 3 mètres, qui pulse faiblement et de manière régulière.",
+    },
+    {
+      ref: "EVT-09",
+      date: "2079.05.30",
+      time: "16:01 UTC",
+      title: "Découverte confirmée",
+      text: "Les mesures confirment l'observation : 3,2 mètres, cycle lumineux de 47 secondes, champ électromagnétique mesurable. Le signal du matin venait de là. Activation du Protocole NOVA.",
+      current: true,
+    },
+  ] as DiscoveryStep[],
+  // FAQ destinée au public et aux médias (discipline NOVA respectée).
+  faq: [
+    {
+      q: "Qu'est-ce qui a été découvert exactement ?",
+      a: "Une structure cristalline d'origine inconnue, haute de 3,2 mètres, située dans la Vallée d'Aurelia (secteur 7) de Kepler-452c. Elle est translucide, émet une lumière selon un cycle régulier de 47 secondes et génère un champ électromagnétique faible mais mesurable.",
+    },
+    {
+      q: "Comment être certain qu'il ne s'agit ni d'un artefact, ni d'une erreur instrumentale ?",
+      a: "La structure a été observée directement par l'équipage lors d'une sortie extravéhiculaire, puis mesurée. Son champ électromagnétique est stable et reproductible, et il correspond au signal détecté le matin même. Trois sources indépendantes concordent : observation visuelle, mesure de terrain et donnée orbitale.",
+    },
+    {
+      q: "Quelle est la nature de ce phénomène ?",
+      a: "À ce stade, il est qualifié de phénomène naturel inexpliqué et d'anomalie géologique active. La cellule POLARIS s'en tient strictement à ce qui est observé et mesuré. Aucune interprétation au-delà des données vérifiées ne sera communiquée.",
+    },
+    {
+      q: "Pourquoi parler de « Protocole NOVA » ?",
+      a: "NOVA signifie Notification d'Observation Vérifiée Anomale. C'est le cadre de communication activé pour une découverte majeure : chaque élément est recoupé et vérifié avant d'être rendu public. Il garantit que vous recevez des faits, jamais des suppositions.",
+    },
+    {
+      q: "Y a-t-il un risque pour l'équipage ?",
+      a: "Aucun risque n'a été identifié. Le champ électromagnétique mesuré est faible, l'équipage observe la structure à distance de sécurité et reste sous surveillance médicale continue depuis l'Odyssey IV.",
+    },
+    {
+      q: "Quand aurons-nous plus d'informations ?",
+      a: "Les analyses se poursuivent à bord et au Centre de Contrôle Aurora. Chaque élément vérifié sera publié dans l'espace « Mises à jour » ci-dessous, au fur et à mesure de son recoupement.",
+    },
+  ] as FaqItem[],
+  // Espace prêt pour les futures mises à jour (du plus récent au plus ancien).
+  updates: [
+    {
+      date: "2079.05.30",
+      time: "16:01 UTC",
+      text: "Découverte confirmée par recoupement des mesures. Activation du Protocole NOVA et ouverture de la communication publique.",
+    },
+  ] as DiscoveryUpdate[],
 }
 
 /** Champ lexical de la cellule (mots à privilégier). */
