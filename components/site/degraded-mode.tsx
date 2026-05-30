@@ -36,8 +36,8 @@ function getSnapshot() {
 }
 
 function getServerSnapshot() {
-  // Livrable : le site est servi en mode dégradé activé par défaut.
-  return true
+  // Mode nominal par défaut : la tempête (EVT-04) se déclenche manuellement.
+  return false
 }
 
 export function useDegraded() {
