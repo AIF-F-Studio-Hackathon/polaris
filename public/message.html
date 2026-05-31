@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Le Message de la Terre — Odyssey IV</title>
+<style>
+  /* Polices locales de la cellule POLARIS (charte SOC-01), servies depuis /typo */
+  @font-face{font-family:'KH Interference';src:url('/typo/KHInterferenceTRIAL-Bold.otf') format('opentype');font-weight:700;font-display:swap;}
+  @font-face{font-family:'KH Interference';src:url('/typo/KHInterferenceTRIAL-Regular.otf') format('opentype');font-weight:400;font-display:swap;}
+  @font-face{font-family:'KH Interference';src:url('/typo/KHInterferenceTRIAL-Light.otf') format('opentype');font-weight:300;font-display:swap;}
+  @font-face{font-family:'TT Interphases';src:url('/typo/TT Interphases Pro Trial Variable.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+  @font-face{font-family:'TT Interphases Mono';src:url('/typo/TT Interphases Pro Mono Trial Var Roman.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+
+  :root{
+    /* Palette POLARIS : crème, encre, orange, beige */
+    --orange:#fa4403;
+    --orange-soft:#ff7a4d;
+    --ink:#fffcf2;          /* texte clair (sur fond spatial sombre) */
+    --ink-dim:#ccc5b9;      /* beige */
+    --void:#0c0b09;         /* encre profonde, jamais #000 */
+    --crystal:#7fd9ff;      /* structure (cyan, cohérent EVA) */
+    --line:rgba(250,68,3,.35);
+    --panel:rgba(18,16,13,.86);
+    --head:'KH Interference', 'TT Interphases', system-ui, sans-serif;
+    --sans:'TT Interphases', system-ui, sans-serif;
+    --mono:'TT Interphases Mono', ui-monospace, 'Courier New', monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;overflow:hidden;background:var(--void);color:var(--ink);}
+  body{font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  #scene{position:fixed;inset:0;display:block;}
+  canvas{display:block;}
+
+  /* ---- vignette ---- */
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:5;
+    background:radial-gradient(120% 120% at 50% 40%, transparent 55%, rgba(0,0,0,.6) 100%);}
+
+  /* ---- HUD ---- */
+  #hud{position:fixed;inset:0;z-index:10;pointer-events:none;}
+  .label{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-dim);}
+
+  #topbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;
+    align-items:flex-start;padding:22px 26px;
+    background:linear-gradient(180deg, rgba(12,11,9,.8), transparent);}
+  #mission .t{font-family:var(--head);font-weight:700;font-size:15px;color:var(--ink);
+    letter-spacing:.06em;text-transform:uppercase;}
+  #mission .s{margin-top:4px;}
+  #counter{text-align:right;}
+  #counter .num{font-family:var(--head);font-weight:700;font-size:30px;line-height:1;color:var(--orange);
+    font-variant-numeric:tabular-nums;}
+  #counter .num span{color:var(--ink-dim);font-size:18px;}
+  #counter .s{margin-top:6px;}
+
+  #progress-track{position:absolute;top:80px;right:26px;width:150px;height:2px;background:rgba(255,252,242,.14);}
+  #progress-fill{height:100%;width:0;background:var(--orange);transition:width .6s cubic-bezier(.2,.8,.2,1);}
+
+  /* ---- lecteur audio (toggle son) ---- */
+  #sound{position:absolute;top:96px;right:26px;pointer-events:auto;display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);
+    background:var(--panel);border:1px solid var(--line);padding:7px 11px;cursor:pointer;transition:.2s;}
+  #sound:hover{color:var(--ink);border-color:var(--orange);}
+  #sound.on{color:var(--void);background:var(--orange);border-color:var(--orange);}
+  #sound #sound-ico{font-size:13px;line-height:1;}
+
+  /* ---- info card : ancree au drapeau, reprojetee a l'ecran chaque frame ---- */
+  #card{position:absolute;left:0;top:0;transform:translate(26px,-50%);
+    width:min(330px,76vw);padding:16px 18px 17px;
+    background:var(--panel);border:1px solid var(--line);
+    opacity:0;transition:opacity .3s ease;pointer-events:none;
+    will-change:left,top,opacity;}
+  #card.show{opacity:1;}
+  /* image documentaire du moment + fallback "annee" */
+  #card-fig{position:relative;display:block;width:100%;height:126px;margin-bottom:12px;overflow:hidden;
+    border:1px solid var(--line);background:linear-gradient(135deg, rgba(250,68,3,.16), rgba(12,11,9,.55));}
+  #card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s ease;}
+  #card-fig.loaded #card-img{opacity:1;}
+  #card-fig .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--head);font-weight:700;font-size:30px;color:rgba(255,252,242,.45);letter-spacing:.02em;transition:opacity .3s;}
+  #card-fig.loaded .ph{opacity:0;}
+  #card.flip{transform:translate(calc(-100% - 26px),-50%);} /* bascule a gauche pres du bord droit */
+  /* trait + point qui relient la carte au drapeau */
+  #card::before{content:"";position:absolute;top:50%;left:-26px;width:26px;height:1px;background:var(--orange);}
+  #card.flip::before{left:auto;right:-26px;}
+  #card::after{content:"";position:absolute;top:50%;left:-30px;margin-top:-4px;width:8px;height:8px;border-radius:50%;
+    background:var(--orange);box-shadow:0 0 11px rgba(250,68,3,.85);}
+  #card.flip::after{left:auto;right:-30px;}
+  #card .yr{font-family:var(--mono);color:var(--orange);font-size:11px;letter-spacing:.28em;}
+  #card .h{font-family:var(--head);font-weight:700;font-size:18px;line-height:1.12;margin:7px 0 9px;
+    color:var(--ink);letter-spacing:.01em;text-transform:uppercase;}
+  #card .b{font-family:var(--sans);font-size:13.5px;line-height:1.5;color:#e9e2d4;}
+  #card .tag{margin-top:11px;font-size:9px;letter-spacing:.24em;color:var(--ink-dim);text-transform:uppercase;}
+
+  /* ---- invite d'activation [E] (ancree au drapeau, comme la carte) ---- */
+  #prompt{position:absolute;left:0;top:0;transform:translate(26px,-50%);
+    display:inline-flex;align-items:center;gap:9px;padding:9px 13px;white-space:nowrap;
+    background:var(--panel);border:1px solid var(--orange);
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);
+    opacity:0;transition:opacity .25s ease;pointer-events:auto;cursor:pointer;will-change:left,top,opacity;}
+  #prompt.show{opacity:1;}
+  #prompt.flip{transform:translate(calc(-100% - 26px),-50%);}
+  #prompt kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--orange);color:var(--orange);
+    padding:3px 7px;background:rgba(250,68,3,.12);animation:promptPulse 1.4s ease-in-out infinite;}
+  @keyframes promptPulse{0%,100%{box-shadow:0 0 0 0 rgba(250,68,3,0);}50%{box-shadow:0 0 12px rgba(250,68,3,.55);}}
+  #prompt::before{content:"";position:absolute;top:50%;left:-26px;width:26px;height:1px;background:var(--orange);}
+  #prompt.flip::before{left:auto;right:-26px;}
+  #prompt::after{content:"";position:absolute;top:50%;left:-30px;margin-top:-4px;width:8px;height:8px;border-radius:50%;
+    background:var(--orange);box-shadow:0 0 11px rgba(250,68,3,.85);}
+  #prompt.flip::after{left:auto;right:-30px;}
+
+  /* ---- controls hint ---- */
+  #hint{position:absolute;left:26px;bottom:30px;}
+  #hint .row{display:flex;align-items:center;gap:10px;margin-top:8px;color:var(--ink-dim);font-size:11px;letter-spacing:.12em;}
+  kbd{font-family:var(--mono);font-size:10px;border:1px solid rgba(255,252,242,.24);
+    padding:3px 6px;min-width:20px;text-align:center;color:var(--ink);}
+
+  /* ---- touch dpad (mobile) ---- */
+  #dpad{position:absolute;right:26px;bottom:28px;display:none;grid-template-columns:repeat(3,48px);
+    grid-template-rows:repeat(2,48px);gap:6px;pointer-events:auto;}
+  #dpad button{font-family:var(--mono);background:var(--panel);border:1px solid var(--line);
+    color:var(--ink);font-size:18px;}
+  #dpad button:active{background:var(--orange);color:var(--void);}
+  #dpad .b-up{grid-column:2;grid-row:1;}
+  #dpad .b-left{grid-column:1;grid-row:2;}
+  #dpad .b-down{grid-column:2;grid-row:2;}
+  #dpad .b-right{grid-column:3;grid-row:2;}
+
+  /* ---- transmit button ---- */
+  #transmit{position:absolute;left:50%;bottom:34px;transform:translateX(-50%) translateY(12px);
+    pointer-events:auto;opacity:0;visibility:hidden;transition:opacity .6s ease,transform .6s ease;
+    font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--void);background:var(--orange);border:none;padding:16px 34px;cursor:pointer;
+    box-shadow:0 0 0 1px var(--orange);}
+  #transmit.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);
+    animation:pulseBtn 2.4s ease-in-out infinite;}
+  @keyframes pulseBtn{0%,100%{box-shadow:0 0 0 1px var(--orange),0 0 0 rgba(250,68,3,0);}
+    50%{box-shadow:0 0 0 1px var(--orange),0 0 40px rgba(250,68,3,.55);}}
+
+  /* ---- overlays (intro / ending) ---- */
+  .screen{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:32px;
+    background:radial-gradient(140% 100% at 50% 30%, rgba(20,18,13,.5), rgba(8,7,5,.97));
+    transition:opacity 1s ease;}
+  .screen.hide{opacity:0;pointer-events:none;}
+  .screen .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.4em;color:var(--orange);text-transform:uppercase;}
+  .screen h1{font-family:var(--head);font-weight:700;font-size:clamp(34px,7vw,64px);
+    line-height:1.0;margin:18px 0 16px;letter-spacing:.01em;max-width:16ch;text-transform:uppercase;}
+  .screen h1 em{font-style:normal;color:var(--orange);}
+  .screen p{font-family:var(--sans);font-size:clamp(15px,2.2vw,18px);line-height:1.6;
+    color:#ddd6c8;max-width:48ch;margin-bottom:30px;}
+  .screen .log{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-dim);
+    line-height:1.9;margin-bottom:28px;max-width:46ch;text-align:left;border-left:1px solid var(--line);padding-left:16px;}
+  .screen .log b{color:var(--crystal);font-weight:400;}
+  .btn{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--void);background:var(--ink);border:none;padding:16px 40px;cursor:pointer;transition:.25s;}
+  .btn:hover{background:var(--orange);color:var(--void);}
+
+  #ending h1{max-width:18ch;}
+  #ending .sig{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--ink-dim);margin-top:24px;}
+  .fadein{opacity:0;animation:fadeUp 1.1s ease forwards;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---- intro : cadre technique + ambiance signal ---- */
+  #intro{background:radial-gradient(140% 110% at 50% 16%, rgba(40,24,14,.55), rgba(8,7,5,.97) 70%);}
+  #intro .frame{position:absolute;inset:20px;pointer-events:none;}
+  #intro .frame span{position:absolute;width:26px;height:26px;}
+  #intro .frame .tl{top:0;left:0;border-top:1px solid var(--line);border-left:1px solid var(--line);}
+  #intro .frame .tr{top:0;right:0;border-top:1px solid var(--line);border-right:1px solid var(--line);}
+  #intro .frame .bl{bottom:0;left:0;border-bottom:1px solid var(--line);border-left:1px solid var(--line);}
+  #intro .frame .br{bottom:0;right:0;border-bottom:1px solid var(--line);border-right:1px solid var(--line);}
+  #intro .aurora{position:absolute;left:50%;top:12%;width:min(640px,88vw);height:340px;
+    transform:translateX(-50%);pointer-events:none;filter:blur(48px);
+    background:radial-gradient(50% 60% at 50% 50%, rgba(250,68,3,.5), transparent 70%);
+    animation:auroraBreath 7s ease-in-out infinite;}
+  @keyframes auroraBreath{0%,100%{opacity:.32;transform:translateX(-50%) scale(1);}
+    50%{opacity:.6;transform:translateX(-50%) scale(1.08);}}
+  #intro .signal{display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;}
+  #intro .signal .label{color:var(--ink-dim);}
+  #intro .signal .dot{width:7px;height:7px;border-radius:50%;background:var(--orange);
+    animation:sigPulse 1.8s ease-out infinite;}
+  @keyframes sigPulse{0%{box-shadow:0 0 0 0 rgba(250,68,3,.55);}
+    70%{box-shadow:0 0 0 11px rgba(250,68,3,0);}100%{box-shadow:0 0 0 0 rgba(250,68,3,0);}}
+  #intro .bars{display:inline-flex;align-items:flex-end;gap:3px;height:13px;}
+  #intro .bars i{width:3px;background:var(--orange-soft);transform-origin:bottom;animation:barJump 1.05s ease-in-out infinite;}
+  #intro .bars i:nth-child(1){height:40%;animation-delay:0s;}
+  #intro .bars i:nth-child(2){height:72%;animation-delay:.13s;}
+  #intro .bars i:nth-child(3){height:100%;animation-delay:.26s;}
+  #intro .bars i:nth-child(4){height:55%;animation-delay:.39s;}
+  @keyframes barJump{0%,100%{transform:scaleY(.4);}50%{transform:scaleY(1);}}
+  .sound-tip{display:inline-flex;align-items:center;gap:9px;margin-top:24px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-dim);border:1px solid var(--line);background:rgba(18,16,13,.5);padding:9px 14px;}
+  .sound-tip span{font-size:13px;line-height:1;}
+  .sound-tip b{color:var(--orange-soft);font-weight:400;}
+
+  @media (max-width:680px){
+    #hint{display:none;}
+    #dpad{display:grid;}
+    #counter .num{font-size:24px;}
+    #card{width:min(300px,70vw);}
+  }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="vignette"></div>
+
+<div id="hud">
+  <div id="topbar">
+    <div id="mission">
+      <div class="t">Le Message de la Terre</div>
+      <div class="s label">Odyssey IV · Réponse au secteur 7</div>
+    </div>
+    <div id="counter">
+      <div class="num" id="num">0<span>/9</span></div>
+      <div class="s label">Moments transmis</div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill"></div></div>
+
+  <button id="sound" aria-label="Activer le son" title="Son">
+    <span id="sound-ico">♪</span>
+    <span id="sound-lbl">Son</span>
+  </button>
+
+  <div id="hint">
+    <div class="label">Naviguer la planète</div>
+    <div class="row"><kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou les flèches</div>
+  </div>
+
+  <div id="dpad">
+    <button class="b-up" data-k="up">↑</button>
+    <button class="b-left" data-k="left">←</button>
+    <button class="b-down" data-k="down">↓</button>
+    <button class="b-right" data-k="right">→</button>
+  </div>
+
+  <div id="prompt"><kbd>E</kbd><span>Révéler ce moment</span></div>
+
+  <div id="card">
+    <figure id="card-fig"><img id="card-img" alt="" referrerpolicy="no-referrer"><span class="ph" id="card-ph"></span></figure>
+    <div class="yr" id="card-yr"></div>
+    <div class="h" id="card-h"></div>
+    <div class="b" id="card-b"></div>
+    <div class="tag">— ce que l'humanité a de mieux à offrir</div>
+  </div>
+
+  <button id="transmit">Transmettre le message →</button>
+</div>
+
+<!-- INTRO -->
+<div class="screen" id="intro">
+  <div class="frame"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+  <div class="aurora"></div>
+  <div class="signal fadein" style="animation-delay:.05s"><span class="dot"></span><span class="bars"><i></i><i></i><i></i><i></i></span><span class="label">Transmission entrante · Secteur 7</span></div>
+  <div class="eyebrow fadein" style="animation-delay:.1s">Centre de Contrôle Aurora · Cellule CCA</div>
+  <h1 class="fadein" style="animation-delay:.3s">Quelque chose<br>a <em>répondu</em>.</h1>
+  <div class="log fadein" style="animation-delay:.55s">
+    &gt; La structure cristalline du secteur 7 a modifié son cycle.<br>
+    &gt; Fréquence : 47 s → <b>4,7 s</b>. Le champ électromagnétique a décuplé.<br>
+    &gt; Le spectre contient une séquence structurée. Une intention.<br>
+    &gt; Cdt. Ripley : « <b>Répondez.</b> »
+  </div>
+  <p class="fadein" style="animation-delay:.75s">La planète est dans l'ombre. Parcourez-la : chaque drapeau marque un moment où l'humanité fut à la hauteur d'elle-même, et l'illumine. Réunissez-les tous — puis transmettez notre réponse.</p>
+  <button class="btn fadein" id="start" style="animation-delay:.95s">Commencer la transmission</button>
+  <div class="sound-tip fadein" style="animation-delay:1.1s"><span>🔊</span> Expérience sonore · pensez à <b>activer le son</b></div>
+</div>
+
+<!-- ENDING -->
+<div class="screen hide" id="ending" style="opacity:0;visibility:hidden;">
+  <div class="eyebrow">Transmission Odyssey IV · Confirmée</div>
+  <h1>Voici ce que<br>nous sommes.</h1>
+  <p>Pas nos guerres. Pas nos peurs. Mais la curiosité qui nous pousse vers vous, l'art que rien n'oblige, le soin que l'on prend les uns des autres, et la stupeur de lever les yeux.</p>
+  <p style="color:var(--orange-soft);">Si vous écoutez : nous aussi, nous étions seuls. Et nous avons choisi de tendre la main.</p>
+  <div class="sig">— L'humanité, depuis un point bleu pâle</div>
+  <button class="btn" id="replay" style="margin-top:28px;">Recommencer</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+  integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+"use strict";
+/* =====================================================================
+   LE MESSAGE DE LA TERRE — prototype Three.js (style low-poly)
+   Mécanique : la planète tourne sous un astronaute fixe (façon Mario
+   Galaxy / Astroneer). Marcher = faire crêter les drapeaux par-dessus
+   l'horizon. Chaque drapeau = un sommet de l'humanité, à découvrir.
+
+   STYLE : low-poly à facettes (flatShading, géométries icosaédriques,
+   rochers low-poly), habillage UI repris de la charte POLARIS (couleurs
+   crème / encre / orange, polices KH Interference + TT Interphases).
+
+   ROADMAP #1 — La planète qui s'éveille :
+   au départ la planète est éteinte (sombre). Chaque découverte illumine
+   la région autour du drapeau (couleurs par sommet + lueur). Quand les 9
+   moments sont réunis, la planète entière rayonne. L'exploration DEVIENT
+   visiblement le message.
+   ===================================================================== */
+
+const MOMENTS = [
+  { yr:"-17 000", h:"Les peintures de Lascaux", b:"Avant l'écriture, avant les villes, nous dessinions déjà. Le premier geste inutile et nécessaire : créer pour la beauté de créer." },
+  { yr:"1824", h:"L'Ode à la joie", b:"Beethoven, devenu sourd, compose un hymne à la fraternité humaine qu'il n'entendra jamais. La preuve qu'on peut donner ce qu'on ne possède plus." },
+  { yr:"1928", h:"La pénicilline", b:"Une moisissure oubliée sur une paillasse. Fleming regarde mieux que les autres — et des centaines de millions de vies suivront." },
+  { yr:"1948", h:"Les droits de l'Homme", b:"Au sortir du pire, 48 nations signent une promesse : chaque être humain naît libre et égal. Un idéal écrit noir sur blanc, pour s'y tenir." },
+  { yr:"1969", h:"Le premier pas", b:"Un être vivant pose le pied sur un autre monde. Six cent millions de personnes retiennent leur souffle, ensemble, au même instant." },
+  { yr:"1977", h:"Le Disque d'or de Voyager", b:"Nous avions déjà envoyé un message vers les étoiles : des rires, des saluts en 55 langues, du Bach. Aujourd'hui, nous recommençons." },
+  { yr:"1980", h:"La variole éradiquée", b:"Une maladie qui tua 300 millions d'humains au seul XXᵉ siècle : effacée de la surface de la Terre par la seule coopération de tous." },
+  { yr:"1990", h:"Le Point bleu pâle", b:"Voyager se retourne à 6 milliards de km. La Terre n'est qu'un pixel. Tout ce que nous fûmes a tenu sur ce grain de poussière suspendu dans un rayon." },
+  { yr:"2015", h:"Les ondes gravitationnelles", b:"Einstein les avait rêvées un siècle plus tôt. Deux trous noirs fusionnent à un milliard d'années-lumière — et nous l'entendons. Notre curiosité n'a pas de mur." },
+];
+
+// Palette (cohérente avec la charte POLARIS)
+// Image documentaire de chaque moment (domaine public, Wikimedia Commons).
+// Special:FilePath redirige vers une vignette stable (et rasterise les SVG).
+const WIKI = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
+[ 'Lascaux_painting.jpg',
+  'The_Premiere_of_Symphony_No._9.jpg',
+  'Synthetic_Production_of_Penicillin_TR1468.jpg',
+  'Eleanor_Roosevelt_UDHR.jpg',
+  'Aldrin_Apollo_11_original.jpg',
+  'The_Sounds_of_Earth_Record_Cover_-_GPN-2000-001978.jpg',
+  'Smallpox_vaccine_%28cropped%29.jpg',
+  'Pale_Blue_Dot.png',
+  'MergingBlackHoles_V2.jpg'
+].forEach((f,i)=>{ MOMENTS[i].img = WIKI + f + '?width=640'; });
+
+const C_ORANGE = 0xfa4403;
+
+// ---------- setup ----------
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x05060d, 1); // bleu nuit profond (vide spatial)
+// Rendu doux et coloré façon Astroneer : tone mapping + couleurs sRGB.
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+const scene = new THREE.Scene();
+// Brume colorée chaude qui fond l'horizon (palette Astroneer)
+scene.fog = new THREE.FogExp2(0x0a1426, 0.0009); // brume legere : l'espace lointain reste visible
+
+const R = 34; // rayon planète (plus grande et plus massive)
+const camera = new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.1, 1000);
+// Cadrage de référence (distance 1.0). Le zoom molette fait coulisser la
+// caméra le long de l'axe œil → cible, entre ZOOM_MIN et ZOOM_MAX.
+const CAM_EYE = new THREE.Vector3(0, R+11, 30);
+const CAM_TARGET = new THREE.Vector3(0, R+2.5, 2);
+const ZOOM_MIN = 0.55, ZOOM_MAX = 1.7;
+let zoom = 1.0, zoomTarget = 1.0;
+
+// Niveau de la mer + accentuation du relief des terres (Terre stylisee).
+const SEA = R + 0.6, LAND_GAIN = 2.4;
+camera.position.copy(CAM_EYE);
+camera.lookAt(CAM_TARGET);
+
+// Molette : ajuste la cible de zoom (lissée dans la boucle). Pincement tactile aussi.
+addEventListener('wheel', (e)=>{
+  zoomTarget = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoomTarget + Math.sign(e.deltaY)*0.12));
+  e.preventDefault();
+}, {passive:false});
+let pinchD = 0;
+addEventListener('touchmove', (e)=>{
+  if(e.touches.length===2){
+    const dx=e.touches[0].clientX-e.touches[1].clientX, dy=e.touches[0].clientY-e.touches[1].clientY;
+    const d=Math.hypot(dx,dy);
+    if(pinchD){ zoomTarget = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoomTarget - (d-pinchD)*0.004)); }
+    pinchD=d; e.preventDefault();
+  }
+}, {passive:false});
+addEventListener('touchend', ()=>{ pinchD=0; });
+
+const tmpCam = new THREE.Vector3();
+const camLook = new THREE.Vector3().copy(CAM_TARGET); // cible suivie (verrouillée sur le perso)
+function applyZoom(dt){
+  zoom += (zoomTarget - zoom) * Math.min(dt*8, 1); // lissage du zoom
+  // Caméra VERROUILLÉE sur l'astronaute : la cible suit en douceur la position
+  // du buste (qui rebondit à la marche), la caméra reste donc centrée sur lui.
+  // Cible = buste de l'astronaute, calee sur la hauteur LISSEE du sol
+  // (smoothGroundY) et non sur astro.position.y : la camera ignore ainsi le
+  // rebond de la foulee et le basculement en cratere -> image stable et droite.
+  tmpCam.set(astro.position.x, smoothGroundY + 1.75, astro.position.z);
+  camLook.lerp(tmpCam, 1 - Math.pow(0.0016, dt)); // lissage exponentiel doux (indep. framerate)
+  // position œil = cible + offset de cadrage, mis à l'échelle par le zoom
+  camera.position.copy(camLook).addScaledVector(
+    tmpCam.copy(CAM_EYE).sub(CAM_TARGET), zoom
+  );
+  camera.up.set(0,1,0);   // camera toujours verticale, jamais inclinee par le relief
+  camera.lookAt(camLook);
+}
+
+// ---------- lumières (style Astroneer : doux, enveloppant, coloré) ----------
+// Lumière hémisphérique = ciel chaud / sol violacé → ombrage doux et coloré,
+// jamais de noir dur. C'est la signature lumineuse d'Astroneer.
+const hemi = new THREE.HemisphereLight(0x9ec2ff, 0x202a3a, 0.55); // ciel spatial froid / ombre neutre
+scene.add(hemi);
+// Ambiant léger (remonte avec l'éveil de la planète).
+const ambient = new THREE.AmbientLight(0xffe7c4, 0.25);
+scene.add(ambient);
+// Soleil chaud, key light principale (ombres douces).
+const sun = new THREE.DirectionalLight(0xfff0d0, 1.1);
+sun.position.set(20, 36, 14);
+scene.add(sun);
+// Contre-jour coloré (fill froid) pour le volume sur le côté ombre.
+const rim = new THREE.DirectionalLight(0x8fb6ff, 0.6);
+rim.position.set(-14, 10, -28);
+scene.add(rim);
+
+// ---------- étoiles ----------
+let starfield;
+(function stars(){
+  const g = new THREE.BufferGeometry();
+  const n = 1600, pos = new Float32Array(n*3);
+  for(let i=0;i<n;i++){
+    const r = 200 + Math.random()*300;
+    const t = Math.random()*Math.PI*2, p = Math.acos(2*Math.random()-1);
+    pos[i*3]   = r*Math.sin(p)*Math.cos(t);
+    pos[i*3+1] = r*Math.cos(p);
+    pos[i*3+2] = r*Math.sin(p)*Math.sin(t);
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const m = new THREE.PointsMaterial({color:0xffffff, size:1.1, sizeAttenuation:true, transparent:true, opacity:.85});
+  const pts = new THREE.Points(g,m);
+  scene.add(pts);
+  starfield = pts;
+})();
+
+// ---------- planète low-poly (icosaèdre facetté) ----------
+const planetGroup = new THREE.Group();
+scene.add(planetGroup);
+
+// Icosaèdre subdivisé : facettes franches révélées par flatShading.
+const planetGeo = new THREE.IcosahedronGeometry(R, 6); // ~81 920 faces : low-poly dense, beaucoup de détail
+const vertCount = planetGeo.attributes.position.count;
+const vertDir = new Float32Array(vertCount*3); // direction unitaire de chaque vertex
+
+// Cratères : centres répartis sur la sphère + rayon angulaire + profondeur.
+// Chaque cratère creuse un bol avec un bourrelet relevé sur son pourtour.
+const CRATERS = (function makeCraters(){
+  const out = [];
+  const N = 22;
+  for(let i=0;i<N;i++){
+    const t = Math.random()*Math.PI*2, y = Math.random()*2-1;
+    const r = Math.sqrt(Math.max(0,1-y*y));
+    out.push({
+      dir: new THREE.Vector3(Math.cos(t)*r, y, Math.sin(t)*r).normalize(),
+      ang: 0.10 + Math.random()*0.22,   // taille angulaire
+      depth: 1.4 + Math.random()*2.6,   // profondeur du creux
+    });
+  }
+  return out;
+})();
+
+// Hauteur du terrain pour une direction unitaire donnée. SOURCE UNIQUE de
+// vérité, utilisée à la fois pour déformer la planète ET pour ancrer chaque
+// asset sur la vraie surface (relief + cratères) → plus rien ne flotte.
+function terrainRadius(x, y, z){
+  let n = 1.3*Math.sin(x*2.0)*Math.sin(y*2.2)*Math.sin(z*2.0)
+        + 0.8*Math.sin(x*4.0+1.3)*Math.cos(z*3.6)
+        + 0.45*Math.sin(y*7.0)
+        + 0.22*Math.sin(x*11.0+0.5)*Math.sin(z*12.0)  // octave fine
+        + 0.12*Math.sin(x*19.0)*Math.cos(y*17.0);     // grain (facettes nettes)
+  for(const c of CRATERS){
+    const a = Math.acos(Math.min(1, x*c.dir.x + y*c.dir.y + z*c.dir.z));
+    if(a < c.ang*1.6){
+      const u = a / c.ang;
+      if(u < 1) n -= c.depth * (1 - u*u);            // creux parabolique
+      const rim = Math.exp(-Math.pow((u-1.05)/0.28, 2));
+      n += c.depth * 0.35 * rim;                      // bourrelet du rebord
+    }
+  }
+  const r = R + n*1.25;
+  if(r < SEA) return SEA;                  // ocean : surface plane (eau calme)
+  return SEA + (r - SEA) * LAND_GAIN;      // terre : relief accentue (montagnes marquees)
+}
+
+const vertSea = new Uint8Array(vertCount);    // 1 = ocean
+const vertH = new Float32Array(vertCount);    // altitude de la terre au-dessus de la mer
+(function displace(){
+  const p = planetGeo.attributes.position;
+  const v = new THREE.Vector3();
+  for(let i=0;i<p.count;i++){
+    v.fromBufferAttribute(p,i).normalize();
+    vertDir[i*3]=v.x; vertDir[i*3+1]=v.y; vertDir[i*3+2]=v.z;
+    const tr = terrainRadius(v.x, v.y, v.z);    // surface reelle (ocean aplani + relief terre)
+    vertSea[i] = tr <= SEA + 1e-4 ? 1 : 0;
+    vertH[i] = tr - SEA;
+    v.multiplyScalar(tr);
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+  planetGeo.computeVertexNormals();
+})();
+
+// Couleurs par vertex façon Astroneer : sol terreux chaud endormi → teinte
+// sable/corail vive une fois éveillé (palette colorée, jamais terne).
+// Couleurs par vertex : la TERRE. Oceans bleus, terres vertes/brunes selon
+// l'altitude, calottes blanches aux poles + neige sur les sommets. Le canal
+// emissif (aEmissive) reste a 0 : il s'allumera en "lumieres de villes" orange
+// a mesure qu'on revele les moments.
+const OCEAN_DEEP = new THREE.Color(0x0c2a4a);
+const OCEAN      = new THREE.Color(0x1c5c86);
+const SHORE      = new THREE.Color(0x2f8fa6);
+const LAND_LOW   = new THREE.Color(0x4f7a3a);
+const LAND_MID   = new THREE.Color(0x7d6a3c);
+const LAND_HIGH  = new THREE.Color(0x9a7d55);
+const SNOW       = new THREE.Color(0xeef2f4);
+const GLOW = new THREE.Color(C_ORANGE);   // lumieres de ville (region revelee)
+const vCol = new Float32Array(vertCount*3);
+const eCol = new Float32Array(vertCount*3);
+const _ec = new THREE.Color();
+for(let i=0;i<vertCount;i++){
+  const lat = Math.abs(vertDir[i*3+1]);     // 0 equateur -> 1 pole
+  if(vertSea[i]){
+    _ec.copy(OCEAN_DEEP).lerp(OCEAN, 0.55);
+    if(lat>0.9) _ec.lerp(SNOW, (lat-0.9)/0.1*0.8);   // banquise polaire
+  } else {
+    const h = Math.min(1, vertH[i]/8.0);    // 0 cote -> 1 haute montagne
+    if(h<0.04) _ec.copy(SHORE).lerp(LAND_LOW, h/0.04);
+    else if(h<0.5) _ec.copy(LAND_LOW).lerp(LAND_MID, (h-0.04)/0.46);
+    else _ec.copy(LAND_MID).lerp(LAND_HIGH, (h-0.5)/0.5);
+    if(h>0.62) _ec.lerp(SNOW, Math.min(1,(h-0.62)/0.3));      // neige des sommets
+    if(lat>0.82) _ec.lerp(SNOW, Math.min(1,(lat-0.82)/0.18)); // calottes
+  }
+  vCol[i*3]=_ec.r; vCol[i*3+1]=_ec.g; vCol[i*3+2]=_ec.b;
+}
+planetGeo.setAttribute('color', new THREE.BufferAttribute(vCol,3));
+planetGeo.setAttribute('aEmissive', new THREE.BufferAttribute(eCol,3));
+
+const planetMat = new THREE.MeshStandardMaterial({
+  vertexColors:true, roughness:1.0, metalness:0.0,
+  emissive:0xffffff, emissiveIntensity:1.0, flatShading:true
+});
+// Canal émissif par vertex injecté dans le shader standard (r128) : les
+// régions éveillées rayonnent indépendamment de la lumière.
+planetMat.onBeforeCompile = (sh)=>{
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute vec3 aEmissive;\nvarying vec3 vEmissive;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvEmissive = aEmissive;');
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', '#include <common>\nvarying vec3 vEmissive;')
+    .replace('vec3 totalEmissiveRadiance = emissive;', 'vec3 totalEmissiveRadiance = emissive * vEmissive;');
+};
+const planet = new THREE.Mesh(planetGeo, planetMat);
+planetGroup.add(planet);
+
+// atmosphère colorée façon Astroneer : halo turquoise/rosé en dégradé,
+// double coquille pour un liseré doux qui s'intensifie avec l'éveil.
+const atmoMat = new THREE.MeshBasicMaterial({color:0x5aa6ff, transparent:true, opacity:0.12, side:THREE.BackSide});
+const atmo = new THREE.Mesh(new THREE.IcosahedronGeometry(R*1.07, 3), atmoMat);
+scene.add(atmo);
+const atmoMat2 = new THREE.MeshBasicMaterial({color:0x2b6fcf, transparent:true, opacity:0.07, side:THREE.BackSide});
+const atmo2 = new THREE.Mesh(new THREE.IcosahedronGeometry(R*1.14, 3), atmoMat2);
+scene.add(atmo2);
+
+// ---------- systeme solaire (Soleil, planetes lointaines, Kepler-452c) ----------
+// On voit la Terre depuis l'espace : un Soleil chaud qui eclaire la scene, des
+// planetes en arriere-plan, et au loin Kepler-452c — la destination du message.
+function glowTexture(){
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const g = cv.getContext('2d');
+  const grd = g.createRadialGradient(64,64,0, 64,64,64);
+  grd.addColorStop(0.0,'rgba(255,255,255,1)');
+  grd.addColorStop(0.18,'rgba(255,240,205,0.92)');
+  grd.addColorStop(0.5,'rgba(255,180,95,0.32)');
+  grd.addColorStop(1.0,'rgba(255,150,60,0)');
+  g.fillStyle = grd; g.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(cv);
+}
+const glowTex = glowTexture();
+
+// Soleil : disque emissif + halo additif. Aligne aussi la key light dessus.
+const sunDir = new THREE.Vector3(0.55, 0.5, -0.66).normalize();
+const sunPos = sunDir.clone().multiplyScalar(440);
+const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(30, 24, 24),
+  new THREE.MeshBasicMaterial({color:0xfff3d2}));
+sunMesh.position.copy(sunPos); scene.add(sunMesh);
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xffd58a,
+  transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, opacity:0.9}));
+sunGlow.scale.setScalar(260); sunGlow.position.copy(sunPos); scene.add(sunGlow);
+sun.position.copy(sunPos);   // la lumiere directionnelle vient du Soleil visible
+
+// Planetes d'arriere-plan (decor, low-poly, eclairees par le Soleil).
+[[ -210, 70,-320, 4.0, 0xb98a5a],
+ [  300,-60,-240, 7.0, 0xd8b487],
+ [ -340,-40, 160, 5.0, 0x8aa6c4],
+ [  260,110, 240, 3.2, 0xc98a6a]].forEach(([x,y,z,r,c])=>{
+  const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 2),
+    new THREE.MeshStandardMaterial({color:c, roughness:1, metalness:0, flatShading:true}));
+  m.position.set(x,y,z); scene.add(m);
+});
+
+// Kepler-452c : la destination. Monde bleu-vert avec atmosphere + halo qui
+// s'allume a la reception du message (animation finale).
+const keplerDir = new THREE.Vector3(-0.34, 0.26, 0.9).normalize();
+const keplerPos = keplerDir.clone().multiplyScalar(360);
+const kepler = new THREE.Mesh(new THREE.IcosahedronGeometry(15, 3),
+  new THREE.MeshStandardMaterial({color:0x3f7d6a, emissive:0x10463a, emissiveIntensity:0.35,
+    roughness:1, metalness:0, flatShading:true}));
+kepler.position.copy(keplerPos); scene.add(kepler);
+const keplerAtmo = new THREE.Mesh(new THREE.SphereGeometry(17.5, 22, 22),
+  new THREE.MeshBasicMaterial({color:0x7fe0c0, transparent:true, opacity:0.16, side:THREE.BackSide}));
+keplerAtmo.position.copy(keplerPos); scene.add(keplerAtmo);
+const keplerGlow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0x9fffe6,
+  transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, opacity:0.0}));
+keplerGlow.scale.setScalar(80); keplerGlow.position.copy(keplerPos); scene.add(keplerGlow);
+
+// Paquet de donnees (sprite lumineux) qui traversera l'espace vers Kepler.
+const packet = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:0xffd9a0,
+  transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}));
+packet.scale.setScalar(6); packet.visible = false; scene.add(packet);
+
+// ---------- rochers low-poly (décor, enfants de la planète) ----------
+const rockGeo = new THREE.IcosahedronGeometry(1, 0); // 20 faces : très low-poly
+const rockMat = new THREE.MeshStandardMaterial({color:0x8a5a48, roughness:1, metalness:0, flatShading:true}); // roche terracotta (Astroneer)
+const rockUp = new THREE.Vector3(0,1,0);
+(function scatterRocks(){
+  for(let i=0;i<70;i++){
+    // direction aléatoire, en évitant le sommet (astronaute) et les pôles
+    const t = Math.random()*Math.PI*2, y = (Math.random()*1.7-0.85);
+    const r = Math.sqrt(Math.max(0,1-y*y));
+    const dir = new THREE.Vector3(Math.cos(t)*r, y, Math.sin(t)*r).normalize();
+    if(dir.y > 0.82) continue; // laisser le sommet libre
+    const m = new THREE.Mesh(rockGeo, rockMat);
+    m.position.copy(dir.clone().multiplyScalar(terrainRadius(dir.x,dir.y,dir.z) - 0.3)); // enfoncé dans le sol
+    m.quaternion.setFromUnitVectors(rockUp, dir);
+    const s = 0.4 + Math.random()*1.1;
+    m.scale.set(s*(0.7+Math.random()*0.6), s*(0.5+Math.random()*0.7), s*(0.7+Math.random()*0.6));
+    m.rotation.y = Math.random()*Math.PI;
+    planetGroup.add(m);
+  }
+})();
+
+// ---------- cristaux low-poly (amas disséminés, enfants de la planète) ----------
+// Échos de la structure du secteur 7 : petits amas cyan facettés qui scintillent.
+const CRYSTAL_ORANGE = 0xfa4403;
+// Pointe de quartz hexagonale effilee (base y=0, pointe y=2.2) : reprise fidele
+// de la geometrie du cristal 3D de /decouverte (EVT-09).
+const crystalShardGeo = (function(){
+  const halfH = 1.1, geo = new THREE.CylinderGeometry(0.46, 0.40, halfH*2, 6, 5);
+  const p = geo.attributes.position, v = new THREE.Vector3(), taper = 0.4;
+  for(let i=0;i<p.count;i++){
+    v.fromBufferAttribute(p,i);
+    if(v.y>taper){ const f=Math.max(0,(halfH-v.y)/(halfH-taper)); v.x*=f; v.z*=f; }
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+  geo.translate(0, halfH, 0); geo.computeVertexNormals(); return geo;
+})();
+// Coque translucide orange (facettee) + coeur chaud lumineux : memes materiaux
+// que le modele de /decouverte (orange POLARIS, lueur interne).
+const crystalShardMat = new THREE.MeshStandardMaterial({
+  color:CRYSTAL_ORANGE, emissive:CRYSTAL_ORANGE, emissiveIntensity:0.6,
+  roughness:0.12, metalness:0.0, flatShading:true, transparent:true, opacity:0.9
+});
+const crystalCoreMat = new THREE.MeshStandardMaterial({
+  color:0xffd9a8, emissive:CRYSTAL_ORANGE, emissiveIntensity:2.2,
+  roughness:0.3, metalness:0.0, flatShading:true
+});
+const surfaceCrystals = [];
+(function scatterCrystals(){
+  for(let i=0;i<26;i++){
+    const t = Math.random()*Math.PI*2, y = (Math.random()*1.8-0.9);
+    const r = Math.sqrt(Math.max(0,1-y*y));
+    const dir = new THREE.Vector3(Math.cos(t)*r, y, Math.sin(t)*r).normalize();
+    if(dir.y > 0.8) continue; // laisser le sommet (astronaute) libre
+    const cluster = new THREE.Group();
+    cluster.position.copy(dir.clone().multiplyScalar(terrainRadius(dir.x,dir.y,dir.z) - 0.2)); // base ancrée au sol
+    cluster.quaternion.setFromUnitVectors(rockUp, dir);
+    const shards = 2 + (Math.random()*3|0);
+    for(let s=0;s<shards;s++){
+      const sh = new THREE.Mesh(crystalShardGeo, crystalShardMat.clone()); // matériau propre → scintillement par amas
+      const h = 0.5 + Math.random()*0.9;
+      sh.scale.set(0.5+Math.random()*0.3, h, 0.5+Math.random()*0.3);
+      sh.position.set((Math.random()-0.5)*0.7, 0, (Math.random()-0.5)*0.7); // base au sol, pointe en haut
+      sh.rotation.set((Math.random()-0.5)*0.5, Math.random()*Math.PI, (Math.random()-0.5)*0.5);
+      const core = new THREE.Mesh(crystalShardGeo, crystalCoreMat); // coeur lumineux interne
+      core.scale.setScalar(0.72); sh.add(core);
+      cluster.add(sh);
+    }
+    planetGroup.add(cluster);
+    surfaceCrystals.push(cluster);
+  }
+})();
+
+// ---------- végétation low-poly (champignons / coraux façon Astroneer) ----------
+// Petites plantes colorées qui peuplent la surface → densité visuelle.
+const FLORA_COLORS = [0xff8f5e, 0x57d6c8, 0xffc24b, 0xc06bd8, 0x6fae5a];
+const capGeo = new THREE.IcosahedronGeometry(1, 0);
+const stemGeo = new THREE.CylinderGeometry(0.5, 0.7, 1, 6);
+(function scatterFlora(){
+  for(let i=0;i<90;i++){
+    const t = Math.random()*Math.PI*2, y = (Math.random()*1.9-0.95);
+    const r = Math.sqrt(Math.max(0,1-y*y));
+    const dir = new THREE.Vector3(Math.cos(t)*r, y, Math.sin(t)*r).normalize();
+    if(dir.y > 0.8) continue; // sommet libre
+    const col = FLORA_COLORS[(Math.random()*FLORA_COLORS.length)|0];
+    const m = new THREE.Group();
+    m.position.copy(dir.clone().multiplyScalar(terrainRadius(dir.x,dir.y,dir.z) - 0.05)); // pied ancré au sol
+    m.quaternion.setFromUnitVectors(rockUp, dir);
+    const sc = 0.18 + Math.random()*0.4;
+    const stemMat = new THREE.MeshStandardMaterial({color:0x9a8f7a, roughness:1, flatShading:true});
+    const capMat  = new THREE.MeshStandardMaterial({color:col, roughness:.8, emissive:col, emissiveIntensity:.18, flatShading:true});
+    const stem = new THREE.Mesh(stemGeo, stemMat); stem.scale.set(sc*0.5,sc*1.3,sc*0.5); stem.position.y=sc*0.65; m.add(stem);
+    const cap  = new THREE.Mesh(capGeo, capMat);  cap.scale.set(sc,sc*0.7,sc); cap.position.y=sc*1.4; m.add(cap);
+    planetGroup.add(m);
+  }
+})();
+
+// ---------- anneau de débris orbital (détail de fond) ----------
+const debrisRing = new THREE.Group();
+debrisRing.rotation.set(0.5, 0, 0.25);
+scene.add(debrisRing);
+const debGeo = new THREE.TetrahedronGeometry(1,0);
+const debMat = new THREE.MeshStandardMaterial({color:0xb9a98f, roughness:1, flatShading:true});
+for(let i=0;i<160;i++){
+  const a = Math.random()*Math.PI*2, rad = R*2.1 + Math.random()*R*0.5;
+  const d = new THREE.Mesh(debGeo, debMat);
+  d.position.set(Math.cos(a)*rad, (Math.random()-0.5)*2.5, Math.sin(a)*rad);
+  const s = 0.2+Math.random()*0.6; d.scale.setScalar(s);
+  d.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);
+  debrisRing.add(d);
+}
+
+// ---------- vent / tempêtes (couches nuageuses + particules) ----------
+// Deux coquilles translucides low-poly qui tournent sur des axes différents
+// → bandes de tempête qui défilent au-dessus de la surface. Plus des
+// particules de poussière soufflées en orbite rasante.
+const storm = new THREE.Group();
+scene.add(storm);
+const stormShells = [];
+[[1.04, 0xffffff, 0.30],[1.075, 0xdfeafc, 0.18]].forEach(([scl,col,op])=>{
+  const shell = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(R*scl, 4),
+    new THREE.MeshStandardMaterial({color:col, transparent:true, opacity:op, flatShading:true,
+      roughness:1, metalness:0, side:THREE.DoubleSide, depthWrite:false})
+  );
+  // déforme la coquille pour des amas nuageux irréguliers (low-poly)
+  const p = shell.geometry.attributes.position, v=new THREE.Vector3();
+  for(let i=0;i<p.count;i++){
+    v.fromBufferAttribute(p,i).normalize();
+    const d = 1 + 0.06*Math.sin(v.x*5+v.y*4) + 0.05*Math.sin(v.z*6+v.x*3);
+    v.multiplyScalar(R*scl*d); p.setXYZ(i,v.x,v.y,v.z);
+  }
+  shell.geometry.computeVertexNormals();
+  shell.userData.axis = new THREE.Vector3(Math.random()-0.5, 1, Math.random()-0.5).normalize();
+  shell.userData.spd = 0.03 + Math.random()*0.05;
+  storm.add(shell); stormShells.push(shell);
+});
+
+// particules de vent : poussière en orbite rasante
+let windParticles;
+(function makeWind(){
+  const n = 700, g = new THREE.BufferGeometry();
+  const pos = new Float32Array(n*3), seed = new Float32Array(n*3);
+  for(let i=0;i<n;i++){
+    const t = Math.random()*Math.PI*2, y = (Math.random()*2-1)*0.85;
+    const rr = Math.sqrt(Math.max(0,1-y*y));
+    const rad = R*(1.02 + Math.random()*0.13);
+    pos[i*3]=Math.cos(t)*rr*rad; pos[i*3+1]=y*rad; pos[i*3+2]=Math.sin(t)*rr*rad;
+    seed[i*3]=t; seed[i*3+1]=y*rad; seed[i*3+2]=rr*rad; // angle, hauteur, rayon planaire
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  g.userData.seed = seed; g.userData.n = n;
+  windParticles = new THREE.Points(g, new THREE.PointsMaterial({
+    color:0xccc5b9, size:0.5, sizeAttenuation:true, transparent:true, opacity:0.5, depthWrite:false
+  }));
+  scene.add(windParticles);
+})();
+
+function updateWind(t){
+  // coquilles de tempête : rotation continue sur leur axe
+  for(const s of stormShells){ s.rotateOnAxis(s.userData.axis, s.userData.spd*0.016); }
+  // particules : avancent en cercle autour de l'axe Y (vent zonal)
+  const pos = windParticles.geometry.attributes.position;
+  const seed = windParticles.geometry.userData.seed;
+  const n = windParticles.geometry.userData.n;
+  for(let i=0;i<n;i++){
+    const a = seed[i*3] + t*(0.25 + seed[i*3+2]*0.004); // vitesse ~ rayon
+    const y = seed[i*3+1], rr = seed[i*3+2];
+    pos.setXYZ(i, Math.cos(a)*rr, y + Math.sin(t*0.6+seed[i*3])*0.4, Math.sin(a)*rr);
+  }
+  pos.needsUpdate = true;
+}
+
+// ---------- éveil : illumine la région autour d'une direction ----------
+const colAttr = planetGeo.attributes.color;
+const emiAttr = planetGeo.attributes.aEmissive;
+const REGION = 0.86; // dot mini pour être "dans" la région d'un drapeau
+function illuminate(dir){
+  const dx=dir.x, dy=dir.y, dz=dir.z;
+  for(let i=0;i<vertCount;i++){
+    const d = vertDir[i*3]*dx + vertDir[i*3+1]*dy + vertDir[i*3+2]*dz;
+    if(d>REGION){
+      const t = (d-REGION)/(1-REGION);          // 0 au bord -> 1 au centre
+      const e = t*t * (vertSea[i]?0.22:1.0);     // lumieres de ville (surtout sur les terres)
+      if(e>emiAttr.getX(i)) emiAttr.setXYZ(i, GLOW.r*e, GLOW.g*e, GLOW.b*e);
+    }
+  }
+  emiAttr.needsUpdate = true;
+}
+// Éveil final : toute la planète rayonne quand le message est complet.
+function fullAwaken(){
+  for(let i=0;i<vertCount;i++){
+    const g = vertSea[i]?0.12:0.5;   // toute la Terre s'illumine de lumieres de villes
+    emiAttr.setXYZ(i,
+      Math.max(emiAttr.getX(i), GLOW.r*g),
+      Math.max(emiAttr.getY(i), GLOW.g*g),
+      Math.max(emiAttr.getZ(i), GLOW.b*g));
+  }
+  emiAttr.needsUpdate = true;
+}
+
+// ---------- drapeaux (enfants de la planète) ----------
+const flags = [];
+function fibSphere(i, n){ // distribution régulière
+  const off = 2/n, inc = Math.PI*(3-Math.sqrt(5));
+  const y = i*off - 1 + off/2;
+  const r = Math.sqrt(1-y*y);
+  const phi = i*inc;
+  return new THREE.Vector3(Math.cos(phi)*r, y, Math.sin(phi)*r);
+}
+const upV = new THREE.Vector3(0,1,0);
+MOMENTS.forEach((m, i)=>{
+  // on évite le tout en haut (réservé au départ) en décalant l'index
+  let dir = fibSphere(i+1, MOMENTS.length+2);
+  const g = new THREE.Group();
+  g.position.copy(dir.clone().multiplyScalar(terrainRadius(dir.x,dir.y,dir.z) - 0.05)); // ancré au sol
+  g.quaternion.setFromUnitVectors(upV, dir);
+
+  // mât (low-poly : peu de segments)
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07,0.07,3.4,5),
+    new THREE.MeshStandardMaterial({color:0xb9b2a4, roughness:.6, metalness:.4, flatShading:true})
+  );
+  pole.position.y = 1.7;
+  g.add(pole);
+
+  // bannière low-poly segmentée (ondule au vent dans la boucle)
+  const banMat = new THREE.MeshStandardMaterial({
+    color:0x55514a, roughness:.85, emissive:0x000000, emissiveIntensity:0, side:THREE.DoubleSide, flatShading:true
+  });
+  const banGeo = new THREE.PlaneGeometry(1.5,0.92,6,3); // 6 segments en largeur → drapé low-poly
+  // mémorise la position au repos de chaque vertex pour l'animation de vent
+  const banBase = Float32Array.from(banGeo.attributes.position.array);
+  const ban = new THREE.Mesh(banGeo, banMat);
+  ban.position.set(0.82, 3.0, 0);
+  g.add(ban);
+
+  // halo (caché tant que non découvert)
+  const halo = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.9,1),
+    new THREE.MeshBasicMaterial({color:C_ORANGE, transparent:true, opacity:0})
+  );
+  halo.position.y = 3.0;
+  g.add(halo);
+
+  // lumière au pied du drapeau, allumée à la découverte
+  const glow = new THREE.PointLight(C_ORANGE, 0, 14, 2);
+  glow.position.y = 1.4;
+  g.add(glow);
+
+  planetGroup.add(g);
+  flags.push({group:g, dir:dir.clone(), banMat, ban, banGeo, banBase, phase:i*1.7, halo, glow, data:m, found:false});
+});
+
+// ---------- vent : ondulation low-poly des bannières ----------
+// On déplace chaque vertex le long de Z selon une onde qui court de la hampe
+// (x=-0.75, attaché) vers le bord libre (x=+0.75, flotte le plus). Amplitude
+// croissante avec x → effet de drapeau claquant au vent.
+function windFlags(t){
+  for(const f of flags){
+    const pos = f.banGeo.attributes.position;
+    const base = f.banBase;
+    for(let i=0;i<pos.count;i++){
+      const bx = base[i*3], by = base[i*3+1];
+      const grip = (bx+0.75)/1.5;              // 0 à la hampe → 1 au bord libre
+      const amp = grip*grip*0.5;               // le bord libre ondule le plus
+      const z = Math.sin(bx*3.4 - t*6 + f.phase) * amp
+              + Math.sin(by*2.0 + t*3.2 + f.phase) * amp*0.4;
+      pos.setXYZ(i, bx, by, z);
+    }
+    pos.needsUpdate = true;
+    f.banGeo.computeVertexNormals();           // recalcul → facettes low-poly nettes
+  }
+}
+
+// ---------- astronaute low-poly (fixe au sommet) ----------
+const astro = new THREE.Group();
+astro.position.set(0, R+0.15, 0);
+scene.add(astro);
+const suit  = new THREE.MeshStandardMaterial({color:0xfffcf2, roughness:.65, metalness:.05, flatShading:true});
+const suit2 = new THREE.MeshStandardMaterial({color:0xe9e2d4, roughness:.7,  metalness:.05, flatShading:true}); // ombrage des membres
+const dark  = new THREE.MeshStandardMaterial({color:0x252422, roughness:.4,  metalness:.35, flatShading:true});
+const glass = new THREE.MeshStandardMaterial({color:0x10202c, roughness:.08, metalness:.6, emissive:0x1f6f8f, emissiveIntensity:.8, flatShading:false});
+const accent= new THREE.MeshStandardMaterial({color:C_ORANGE, roughness:.55, emissive:C_ORANGE, emissiveIntensity:.35, flatShading:true});
+
+// tronc (légèrement conique) + ceinture
+const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.40,0.52,1.12,8), suit);
+torso.position.y = 1.4; astro.add(torso);
+const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.16,8), dark);
+belt.position.y = 0.92; astro.add(belt);
+// plastron orange (côté caméra) + écusson
+const chest = new THREE.Mesh(new THREE.BoxGeometry(0.46,0.5,0.08), suit2);
+chest.position.set(0,1.55,0.45); astro.add(chest);
+const chestLed = new THREE.Mesh(new THREE.BoxGeometry(0.30,0.08,0.04), accent);
+chestLed.position.set(0,1.66,0.5); astro.add(chestLed);
+
+// col + casque
+const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.38,0.22,10), dark);
+collar.position.y = 2.0; astro.add(collar);
+// casque-bulle brillant (signature Astroneer) : sphère lisse vernie + reflet
+const helmetMat = new THREE.MeshStandardMaterial({color:0xfffaf0, roughness:0.25, metalness:0.1, flatShading:false});
+const head = new THREE.Mesh(new THREE.SphereGeometry(0.5,24,20), helmetMat);
+head.position.y = 2.42; astro.add(head);
+// visière bombée en verre teinté (large bulle, légère lueur cyan)
+const visor = new THREE.Mesh(
+  new THREE.SphereGeometry(0.505,24,18, Math.PI*0.14, Math.PI*0.72, Math.PI*0.26, Math.PI*0.5),
+  glass
+);
+visor.position.y = 2.42; visor.rotation.y = Math.PI; astro.add(visor);
+// liseré orange du casque (anneau accent)
+const ring = new THREE.Mesh(new THREE.TorusGeometry(0.5,0.045,8,24), accent);
+ring.position.y = 2.42; ring.rotation.x = Math.PI/2; astro.add(ring);
+// lampe frontale
+const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,0.08,8), accent);
+lamp.position.set(0,2.66,-0.28); lamp.rotation.x = Math.PI/2; astro.add(lamp);
+
+// sac à dos + antenne (côté caméra)
+const pack = new THREE.Mesh(new THREE.BoxGeometry(0.68,0.92,0.38), dark);
+pack.position.set(0,1.5,0.52); astro.add(pack);
+const packLed = new THREE.Mesh(new THREE.BoxGeometry(0.46,0.08,0.03), accent);
+packLed.position.set(0,1.78,0.72); astro.add(packLed);
+const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.5,5), suit2);
+antenna.position.set(0.26,2.05,0.62); astro.add(antenna);
+const antTip = new THREE.Mesh(new THREE.IcosahedronGeometry(0.06,0), accent);
+antTip.position.set(0.26,2.32,0.62); astro.add(antTip);
+
+// jambes (groupes pivotant à la hanche : cuisse + botte)
+function leg(x){
+  const g = new THREE.Group(); g.position.set(x,0.92,0);
+  const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.15,0.74,7), suit2);
+  thigh.position.y = -0.37; g.add(thigh);
+  const boot = new THREE.Mesh(new THREE.BoxGeometry(0.27,0.2,0.46), dark);
+  boot.position.set(0,-0.78,0.07); g.add(boot);
+  astro.add(g); return g;
+}
+const legL = leg(-0.22), legR = leg(0.22);
+
+// bras (groupes pivotant à l'épaule : épaulière + bras + gant)
+function arm(x){
+  const g = new THREE.Group(); g.position.set(x,1.76,0);
+  const shoulder = new THREE.Mesh(new THREE.IcosahedronGeometry(0.19,0), suit);
+  g.add(shoulder);
+  const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.12,0.82,7), suit2);
+  upper.position.y = -0.44; g.add(upper);
+  const hand = new THREE.Mesh(new THREE.IcosahedronGeometry(0.15,0), accent);
+  hand.position.y = -0.86; g.add(hand);
+  astro.add(g); return g;
+}
+const armL = arm(-0.56), armR = arm(0.56);
+astro.rotation.x = -0.12; // léger penché vers l'avant
+
+// ---------- structure cristalline low-poly (dans le ciel) ----------
+const crystal = new THREE.Group();
+crystal.position.set(-14, R+46, -46);
+scene.add(crystal);
+// Structure du secteur 7 — meme aspect que le modele 3D de /decouverte :
+// pointes de quartz orange en eventail, coque translucide + coeur lumineux.
+crystal.scale.setScalar(1.8);
+[[0,0,0, 0.04,0, 1.0],[-1.4,-0.2,0.6, 0.05,0.34, 0.78],[1.5,-0.3,0.3, 0.04,-0.4, 0.82],
+ [-0.7,-0.4,-1.4, -0.32,0.18, 0.62],[1.0,-0.4,-1.1, -0.28,-0.2, 0.6],
+ [0.5,-0.2,1.6, 0.42,-0.06, 0.66]].forEach(([x,y,z,rx,rz,s])=>{
+  const shell = new THREE.Mesh(crystalShardGeo, crystalShardMat.clone());
+  shell.position.set(x,y,z); shell.rotation.set(rx,0,rz); shell.scale.setScalar(s*2.2);
+  const core = new THREE.Mesh(crystalShardGeo, crystalCoreMat);
+  core.scale.setScalar(0.72); shell.add(core);
+  crystal.add(shell);
+});
+const cGlow = new THREE.PointLight(C_ORANGE, 2.2, 200);
+crystal.add(cGlow);
+
+// faisceau de transmission (caché)
+const beam = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.6,1.4,1,10,1,true),
+  new THREE.MeshBasicMaterial({color:C_ORANGE, transparent:true, opacity:0, side:THREE.DoubleSide,
+    blending:THREE.AdditiveBlending, depthWrite:false})
+);
+beam.visible = false;
+scene.add(beam);
+
+// ---------- poussière de pas (pool de particules low-cost) ----------
+// Petits points beige éjectés sous les bottes à chaque appui, qui retombent
+// et s'estompent → impression de masse qui foule le sol.
+const DUST_MAX = 120;
+const dustGeo = new THREE.BufferGeometry();
+const dustPos = new Float32Array(DUST_MAX*3);
+const dustVel = new Float32Array(DUST_MAX*3);
+const dustLife = new Float32Array(DUST_MAX); // >0 = vivante
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos,3));
+const dustMat = new THREE.PointsMaterial({color:0xd9c3a0, size:0.32, sizeAttenuation:true, transparent:true, opacity:0.0, depthWrite:false});
+const dust = new THREE.Points(dustGeo, dustMat);
+dust.frustumCulled = false;
+scene.add(dust);
+let dustHead = 0;
+// Émet une bouffée de poussière qui traîne DERRIÈRE le perso : (bx,bz) est la
+// direction « arrière » (sens inverse de la marche). Les grains partent bas,
+// dérivent vers l'arrière et retombent → un panache de sillage, pas un pouf.
+function emitDust(x,y,z, bx,bz){
+  for(let k=0;k<6;k++){
+    const i = dustHead; dustHead = (dustHead+1)%DUST_MAX;
+    const spread = (Math.random()-0.5)*0.5;            // léger éventail latéral
+    dustPos[i*3]=x + bx*0.2; dustPos[i*3+1]=y+0.05; dustPos[i*3+2]=z + bz*0.2;
+    const back = 1.0 + Math.random()*0.8;              // vitesse vers l'arrière
+    dustVel[i*3]   = bx*back - bz*spread;
+    dustVel[i*3+1] = 0.15 + Math.random()*0.25;        // petit soulèvement, bas
+    dustVel[i*3+2] = bz*back + bx*spread;
+    dustLife[i]=0.6+Math.random()*0.4;
+  }
+}
+function updateDust(dt){
+  let any=false;
+  for(let i=0;i<DUST_MAX;i++){
+    if(dustLife[i]>0){
+      dustLife[i]-=dt; any=true;
+      dustVel[i*3+1]-=2.2*dt; // gravité légère
+      dustPos[i*3]   += dustVel[i*3]*dt;
+      dustPos[i*3+1] += dustVel[i*3+1]*dt;
+      dustPos[i*3+2] += dustVel[i*3+2]*dt;
+    } else {
+      dustPos[i*3+1]=-9999; // hors champ
+    }
+  }
+  dustMat.opacity += ((any?0.7:0) - dustMat.opacity)*Math.min(dt*6,1);
+  dustGeo.attributes.position.needsUpdate = true;
+}
+
+// =====================================================================
+//   CONTRÔLES
+// =====================================================================
+const keys = {up:false,down:false,left:false,right:false};
+const map = {KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right'};
+addEventListener('keydown', e=>{ if(map[e.code]){keys[map[e.code]]=true; e.preventDefault();}});
+addEventListener('keyup',   e=>{ if(map[e.code]){keys[map[e.code]]=false;}});
+document.querySelectorAll('#dpad button').forEach(b=>{
+  const k=b.dataset.k;
+  const on=e=>{keys[k]=true;e.preventDefault();}, off=e=>{keys[k]=false;e.preventDefault();};
+  b.addEventListener('touchstart',on,{passive:false}); b.addEventListener('touchend',off);
+  b.addEventListener('mousedown',on); b.addEventListener('mouseup',off); b.addEventListener('mouseleave',off);
+});
+
+// =====================================================================
+//   ÉTAT DE JEU
+// =====================================================================
+let running = false, ended = false, found = 0;
+// Etat de l'animation finale (declare AVANT animate() : la boucle lit `cinematic`
+// des la 1ere frame -> sinon ReferenceError TDZ sur le `let` plus bas).
+let cinematic=false, cineT=0, packetLaunched=false, endShown=false;
+let awaken = 0;            // 0 → 1 : niveau d'éveil global (lumières/atmo)
+const TOTAL = MOMENTS.length;
+const X = new THREE.Vector3(1,0,0), Y = new THREE.Vector3(0,1,0), Z = new THREE.Vector3(0,0,1);
+const MOVE = 0.34; // rad/s (planète R=34 : surface plus grande → marche posée, pas de glisse)
+const ACTIVE_DOT = 0.965;       // ~15° du sommet
+let activeFlag = null, walkT = 0;
+
+// --- physique du personnage (inertie + poids) ---
+// velX/velZ : vitesse lissée du déplacement (repère écran). On s'en sert pour
+// orienter le perso vers sa direction, l'incliner dans les accélérations et
+// rythmer la foulée. heading : cap courant (lissé vers la direction visée).
+let velX = 0, velZ = 0;        // vitesse courante (-1..1 par axe)
+let heading = 0;               // cap du perso (rad), 0 = vers la caméra/+Z
+let leanP = 0, leanR = 0;      // inclinaisons lissées (tangage / roulis)
+const BASE_TILT = -0.12;       // léger penché avant au repos
+let prevStride = 0;            // suivi du cycle de foulée → déclenche pas + poussière
+const footWorld = new THREE.Vector3(); // position monde d'un pied (émission poussière)
+
+// suivi du relief : rayon vertical sous l'astronaute (hauteur + normale du sol)
+const groundRay = new THREE.Raycaster();
+const rayOrigin = new THREE.Vector3();
+const rayDown = new THREE.Vector3(0,-1,0);
+const tmpN = new THREE.Vector3();
+const normalMat = new THREE.Matrix3();
+let smoothGroundY = R;                       // hauteur lissée du sol
+const upSmooth = new THREE.Vector3(0,1,0);   // normale du sol lissée
+// quaternions réutilisés (orientation = alignement sol × cap × inclinaison)
+const qAlign = new THREE.Quaternion(), qSpin = new THREE.Quaternion(), qLean = new THREE.Quaternion();
+const eLean = new THREE.Euler();
+
+// =====================================================================
+//   AUDIO — synthétisé en WebAudio (aucun fichier externe requis).
+//   master gain → musique d'ambiance + chimes de découverte + pas.
+//   Le bouton « Son » du HUD active/coupe l'ensemble.
+// =====================================================================
+let actx=null, master=null, musicGain=null, audioOn=false;
+
+function initAudio(){
+  if(actx) return;
+  try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+  master = actx.createGain(); master.gain.value = 0; master.connect(actx.destination);
+  startMusic();
+}
+
+// Nappe d'ambiance : accord doux (drone) + lent souffle → minimal, planant.
+function startMusic(){
+  musicGain = actx.createGain(); musicGain.gain.value = 0.5; musicGain.connect(master);
+  const freqs = [110, 164.81, 220, 329.63]; // La grave + quinte/octave (apaisant)
+  freqs.forEach((f,i)=>{
+    const o = actx.createOscillator(); o.type = i<2?'sine':'triangle'; o.frequency.value = f;
+    const g = actx.createGain();
+    const lfo = actx.createOscillator(); lfo.frequency.value = 0.05 + i*0.017;
+    const lfoG = actx.createGain(); lfoG.gain.value = 0.04;
+    lfo.connect(lfoG); lfoG.connect(g.gain);
+    g.gain.value = 0.05 + 0.03*(3-i);
+    o.connect(g); g.connect(musicGain); o.start(); lfo.start();
+  });
+
+  // Souffle d'air / vent : bruit brun (doux) filtre en passe-bas, dont le volume
+  // est module lentement par un LFO -> rafales feutrees. Lit en boucle, discret.
+  const wb = actx.createBuffer(1, (actx.sampleRate*3)|0, actx.sampleRate);
+  const wd = wb.getChannelData(0); let last = 0;
+  for(let i=0;i<wd.length;i++){ last = (last + (Math.random()*2-1)*0.08)*0.985; wd[i] = last; }
+  const wind = actx.createBufferSource(); wind.buffer = wb; wind.loop = true;
+  const wf = actx.createBiquadFilter(); wf.type='lowpass'; wf.frequency.value = 520; wf.Q.value = 0.7;
+  const wg = actx.createGain(); wg.gain.value = 0.14;
+  const gust = actx.createOscillator(); gust.frequency.value = 0.08;
+  const gustG = actx.createGain(); gustG.gain.value = 0.07;
+  gust.connect(gustG); gustG.connect(wg.gain);
+  wind.connect(wf); wf.connect(wg); wg.connect(musicGain);
+  wind.start(); gust.start();
+}
+
+// Chime de découverte (deux notes claires).
+function chime(){
+  if(!actx || !audioOn) return;
+  const t=actx.currentTime;
+  [880,1320].forEach((f,i)=>{
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.18,t+.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+1.1);
+    o.connect(g); g.connect(master); o.start(t+i*0.05); o.stop(t+1.2);
+  });
+}
+
+// Bruit de pas : thud basse fréquence + petit crunch de poussière.
+function footstep(vol){
+  if(!actx || !audioOn) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(150,t);
+  o.frequency.exponentialRampToValueAtTime(60,t+0.12);
+  const g = actx.createGain(); g.gain.setValueAtTime(0.0,t);
+  g.gain.linearRampToValueAtTime(0.22*vol,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+0.2);
+  const n = actx.createBufferSource();
+  const buf = actx.createBuffer(1, (actx.sampleRate*0.12)|0, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/d.length, 2);
+  n.buffer = buf;
+  const nf = actx.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=1400; nf.Q.value=0.8;
+  const ng = actx.createGain(); ng.gain.value = 0.12*vol;
+  n.connect(nf); nf.connect(ng); ng.connect(master); n.start(t);
+}
+
+// Active / coupe le son (fondu doux du master).
+function toggleSound(){
+  if(!actx) initAudio();
+  if(!actx) return;
+  if(actx.state==='suspended') actx.resume();
+  audioOn = !audioOn;
+  const t = actx.currentTime;
+  master.gain.cancelScheduledValues(t);
+  master.gain.linearRampToValueAtTime(audioOn?0.8:0.0, t+0.4);
+  const btn = document.getElementById('sound');
+  btn.classList.toggle('on', audioOn);
+  document.getElementById('sound-lbl').textContent = audioOn?'Son ON':'Son';
+  document.getElementById('sound-ico').textContent = audioOn?'♬':'♪';
+}
+document.getElementById('sound').addEventListener('click', toggleSound);
+
+const $card=document.getElementById('card'), $prompt=document.getElementById('prompt'),
+      $img=document.getElementById('card-img'), $fig=document.getElementById('card-fig'), $ph=document.getElementById('card-ph'),
+      $yr=document.getElementById('card-yr'), $h=document.getElementById('card-h'), $b=document.getElementById('card-b'),
+      $num=document.getElementById('num'), $fill=document.getElementById('progress-fill'),
+      $transmit=document.getElementById('transmit');
+
+function showCard(f){
+  $yr.textContent=f.data.yr; $h.textContent=f.data.h; $b.textContent='« '+f.data.b+' »';
+  $ph.textContent=f.data.yr;                       // fallback (annee) si l'image echoue
+  $fig.classList.remove('loaded');
+  $img.onload=()=>$fig.classList.add('loaded');
+  $img.onerror=()=>$fig.classList.remove('loaded');
+  $img.src=f.data.img;
+  $card.classList.add('show');
+}
+function hideCard(){ $card.classList.remove('show'); }
+function showPrompt(){ $prompt.classList.add('show'); }
+function hidePrompt(){ $prompt.classList.remove('show'); }
+// Touche E (ou tap sur l'invite) : revele le moment du drapeau survole.
+addEventListener('keydown', e=>{ if(e.code==='KeyE'||e.key==='e'||e.key==='E'){ activateFlag(); }});
+$prompt.addEventListener('click', activateFlag);
+
+// Carte d'info ANCREE au drapeau actif : on projette la position MONDE de sa
+// banniere vers l'ecran a chaque frame -> la carte colle au drapeau et suit la
+// camera / la rotation de la planete quand on bouge, tout en restant fixee a ce
+// point precis. Bascule de cote pres du bord droit, se masque si passe derriere.
+const cardAnchor = new THREE.Vector3();
+function anchorToFlag(el){
+  if(!activeFlag || !el.classList.contains('show')) return;
+  activeFlag.ban.getWorldPosition(cardAnchor);
+  cardAnchor.project(camera);
+  if(cardAnchor.z > 1){ el.style.opacity = '0'; return; }   // drapeau derriere la camera
+  el.style.opacity = '';                                    // rend le pilotage a la classe .show
+  const x = (cardAnchor.x*0.5 + 0.5)*innerWidth;
+  const y = (-cardAnchor.y*0.5 + 0.5)*innerHeight;
+  el.classList.toggle('flip', x > innerWidth*0.6);
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
+}
+// La carte ET l'invite [E] sont ancrees au meme point (la banniere du drapeau).
+function updateCardAnchor(){ anchorToFlag($card); anchorToFlag($prompt); }
+
+function discover(f){
+  f.found=true; found++;
+  f.banMat.color.set(C_ORANGE); f.banMat.emissive.set(C_ORANGE); f.banMat.emissiveIntensity=0.9;
+  f.halo.material.opacity=0.18;
+  f.glow.intensity = 1.6;            // la lumière du drapeau s'allume
+  illuminate(f.dir);                 // la région de la planète s'éveille
+  $num.innerHTML=found+'<span>/'+TOTAL+'</span>';
+  $fill.style.width=(found/TOTAL*100)+'%';
+  chime();
+  if(found===TOTAL){ fullAwaken(); $transmit.classList.add('show'); }
+}
+
+// =====================================================================
+//   BOUCLE
+// =====================================================================
+const clock = new THREE.Clock();
+const tmp = new THREE.Vector3();
+
+function detectFlag(){
+  let best=null, bestDot=ACTIVE_DOT;
+  for(const f of flags){
+    f.group.getWorldPosition(tmp).normalize();
+    const d = tmp.dot(Y);
+    if(d>bestDot){ bestDot=d; best=f; }
+  }
+  if(best!==activeFlag){
+    activeFlag=best;
+    refreshFlagUI();
+  }
+}
+// Affiche le bon panneau selon le drapeau survole : la carte si deja revele,
+// l'invite "[E] Reveler" sinon. Rien quand on n'est sur aucun drapeau.
+function refreshFlagUI(){
+  if(!activeFlag){ hideCard(); hidePrompt(); return; }
+  if(activeFlag.found){ hidePrompt(); showCard(activeFlag); }
+  else { hideCard(); showPrompt(); }
+}
+// Revele le moment du drapeau courant (E / tap), puis affiche sa carte.
+function activateFlag(){
+  if(running && !ended && activeFlag && !activeFlag.found){
+    discover(activeFlag); hidePrompt(); showCard(activeFlag);
+  }
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const tt = clock.elapsedTime;
+
+  // Entrée brute (repère écran) : ix = avant/arrière, iz = latéral.
+  const ix = (keys.up?1:0) - (keys.down?1:0);
+  const iz = (keys.right?1:0) - (keys.left?1:0);
+
+  // Physique de poids : la vitesse rejoint la consigne avec de l'inertie.
+  // Démarrage progressif (le perso « s'arrache »), arrêt qui glisse un peu.
+  // Valeurs basses = beaucoup de masse, démarrage/arrêt pesants.
+  const ACCEL = 1.9, DECEL = 2.6; // 1/s — plus petit = plus lourd
+  velX += (ix - velX) * Math.min(dt*(ix!==0?ACCEL:DECEL), 1);
+  velZ += (iz - velZ) * Math.min(dt*(iz!==0?ACCEL:DECEL), 1);
+  const speed = Math.min(1, Math.hypot(velX, velZ));
+
+  if(running && !ended){
+    // La planète tourne sous l'astronaute proportionnellement à la vitesse
+    // lissée → l'inertie se ressent dans le déplacement lui-même.
+    if(Math.abs(velX)>1e-4) planetGroup.rotateOnWorldAxis(X,  velX*MOVE*dt);
+    if(Math.abs(velZ)>1e-4) planetGroup.rotateOnWorldAxis(Z,  velZ*MOVE*dt);
+    detectFlag();
+  }
+
+  // éveil global : l'ambiance suit la progression (lumières + atmosphère)
+  const targetAwaken = found/TOTAL;
+  awaken += (targetAwaken - awaken) * Math.min(dt*1.5, 1);
+  // L'éveil réchauffe et intensifie la lumière douce (palette Astroneer).
+  hemi.intensity = 0.45 + awaken*0.25;
+  ambient.intensity = 0.20 + awaken*0.2;
+  sun.intensity = 1.25 + awaken*0.5;
+  atmoMat.opacity = 0.12 + awaken*0.14;
+
+  // ---- animation de l'astronaute (poids, orientation, foulée) ----
+  // 1) cap : le perso pivote vers sa direction de marche (atan2 sur la vitesse)
+  if(speed>0.06){
+    // Cap vers la direction de marche réelle sur la surface. velX pilote
+    // l'avance (axe X), velZ le latéral (axe Z) mais la rotation de la planète
+    // inverse le sens apparent du latéral → signe négatif sur velZ.
+    const target = Math.atan2(-velZ, velX);
+    let dh = target - heading;
+    dh = Math.atan2(Math.sin(dh), Math.cos(dh)); // plus court chemin (-π..π)
+    heading += dh * Math.min(dt*8, 1);
+  }
+  // 2) foulée LOURDE : cadence plus lente, grandes enjambées bien marquées.
+  walkT += dt * (2.2 + speed*7.0);
+  const sw = Math.sin(walkT) * (0.12 + speed*0.85);
+  legL.rotation.x =  sw;        legR.rotation.x = -sw;
+  armL.rotation.x = -sw*0.8;    armR.rotation.x =  sw*0.8;
+  // les bras s'écartent un peu plus quand on pousse (effort)
+  armL.rotation.z =  0.12 + speed*0.12; armR.rotation.z = -0.12 - speed*0.12;
+
+  // 3) relief : on sonde la hauteur ET la normale du terrain sous l'astronaute
+  //    (rayon vertical depuis le ciel vers le centre). Lissé pour éviter le
+  //    tremblement des facettes. → l'astronaute épouse les courbes de la planète.
+  let groundY = R, hitN = null;
+  groundRay.set(rayOrigin.set(0, R*2.2, 0), rayDown);
+  const hits = groundRay.intersectObject(planet, false);
+  if(hits.length){
+    groundY = hits[0].point.y;
+    if(hits[0].face){
+      hitN = tmpN.copy(hits[0].face.normal)
+        .applyNormalMatrix(normalMat.getNormalMatrix(planet.matrixWorld)).normalize();
+    }
+  }
+  // hauteur lissée + rebond d'appui pesant + encaissement au contact (squash)
+  // démarche flottante "faible gravité" façon Astroneer : petits bonds amples
+  const bob  = Math.abs(Math.sin(walkT)) * speed * 0.42;        // bond d'appui (flottant)
+  const land = (1 - Math.abs(Math.cos(walkT))) * speed * 0.08;  // creux d'encaisse léger
+  smoothGroundY += (groundY - smoothGroundY) * Math.min(dt*7, 1);
+  astro.position.y = smoothGroundY + 0.15 + bob - land
+                   + (speed<0.06 ? Math.sin(tt*1.4)*0.012 : 0);
+
+  // 4) squash & stretch : le corps s'écrase à l'appui, s'étire en l'air → poids.
+  const stride = Math.sin(walkT*2);                 // 1 cycle = 1 appui/2
+  const squash = 1 - speed*0.10*Math.max(0,-stride); // écrase quand le pied touche
+  const stretch = 1 + speed*0.06*Math.max(0, stride);
+  astro.scale.set(1/Math.sqrt(squash*stretch), squash*stretch, 1/Math.sqrt(squash*stretch));
+
+  // appui détecté quand la foulée passe par un creux (stride change de signe)
+  // et qu'on se déplace → bruit de pas + bouffée de poussière au pied.
+  if(speed>0.12 && prevStride<0 && stride>=0){
+    footstep(Math.min(1, 0.4+speed));
+    const foot = (Math.sin(walkT)>0?legR:legL);
+    foot.getWorldPosition(footWorld);
+    // direction « arrière » = opposé du cap → la poussière traîne derrière
+    const bx = Math.sin(heading), bz = Math.cos(heading);
+    emitDust(footWorld.x, footWorld.y, footWorld.z, bx, bz);
+  }
+  prevStride = stride;
+
+  // 5) orientation : on aligne le « haut » de l'astronaute sur la normale du sol,
+  //    puis on applique le cap (heading) et les inclinaisons de masse (tangage/roulis).
+  const pitchTarget = BASE_TILT - velX*0.5;    // se penche vers l'avant en accélérant
+  const rollTarget  =  velZ*0.4;               // s'incline dans le déplacement latéral
+  leanP += (pitchTarget - leanP) * Math.min(dt*5, 1);
+  leanR += (rollTarget  - leanR) * Math.min(dt*5, 1);
+  if(hitN){
+    upSmooth.lerp(hitN, Math.min(dt*5, 1)).normalize(); // normale lissée
+  }
+  qAlign.setFromUnitVectors(Y, upSmooth);
+  qSpin.setFromAxisAngle(Y, heading);
+  eLean.set(leanP, 0, leanR);
+  qLean.setFromEuler(eLean);
+  astro.quaternion.copy(qAlign).multiply(qSpin).multiply(qLean);
+
+  // 5) drapeaux qui claquent au vent (ondulation low-poly)
+  windFlags(tt);
+
+  // 6) vent / tempêtes : bandes nuageuses + particules de poussière
+  updateWind(tt);
+
+  // 7) cristaux de surface : scintillement de l'émissif
+  for(let i=0;i<surfaceCrystals.length;i++){
+    const cl = surfaceCrystals[i];
+    const e = 0.5 + 0.4*Math.sin(tt*1.5 + i*0.9);
+    for(const sh of cl.children) sh.material.emissiveIntensity = e;
+  }
+
+  // halos des drapeaux découverts qui respirent
+  for(const f of flags){ if(f.found){ f.halo.material.opacity = 0.12 + 0.08*Math.sin(tt*2+f.dir.x); } }
+
+  // cristal : pulsation ~4.7s (clin d'œil au log)
+  crystal.rotation.y += dt*0.15; crystal.rotation.x += dt*0.05;
+  const pulse = 0.8 + 0.6*Math.pow(0.5+0.5*Math.sin(tt*(2*Math.PI/4.7)),3);
+  crystal.children.forEach(c=>{ if(c.material) c.material.emissiveIntensity = 1.2*pulse; });
+  cGlow.intensity = 1.6*pulse;
+
+  if(starfield) starfield.rotation.y += dt*0.005;
+  debrisRing.rotation.y += dt*0.02; // anneau de débris en lente orbite
+  updateDust(dt);         // poussière des pas
+  if(cinematic) runCinematic(dt); else applyZoom(dt);          // zoom molette / pincement + caméra verrouillée sur le perso
+  renderer.render(scene, camera);
+  updateCardAnchor();     // colle la carte d'info au drapeau actif (apres maj camera)
+}
+animate();
+
+// =====================================================================
+//   SÉQUENCE DE TRANSMISSION (fin)
+// =====================================================================
+// =====================================================================
+//   TRANSMISSION FINALE — animation cinematique (visible) :
+//   recul camera -> la Terre dans l'espace -> un paquet de lumiere quitte
+//   l'appareil et traverse le systeme solaire jusqu'a Kepler-452c, qui
+//   s'illumine -> ecran de fin.
+// =====================================================================
+// (etat cinematique `cinematic/cineT/packetLaunched/endShown` declare plus haut,
+//  avant animate(), pour eviter la TDZ lue par la boucle des la 1ere frame)
+const cineEye=new THREE.Vector3(), cineLook=new THREE.Vector3();
+const eyeWide=new THREE.Vector3(), lookWide=new THREE.Vector3();
+const pStart=new THREE.Vector3(), pNow=new THREE.Vector3();
+const easeIO = u => u<0.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2;
+
+function placeBeam(from,to){
+  const len = from.distanceTo(to);
+  beam.position.copy(from).add(to).multiplyScalar(0.5);
+  beam.scale.set(1, len, 1);
+  beam.quaternion.setFromUnitVectors(Y, tmp.copy(to).sub(from).normalize());
+}
+function showEnding(){
+  const end=document.getElementById('ending');
+  end.style.visibility='visible'; end.style.opacity='1'; end.classList.remove('hide');
+  end.querySelectorAll('h1,p,.eyebrow,.sig,.btn').forEach((el,i)=>{
+    el.style.animation='none'; void el.offsetWidth;
+    el.style.animation=`fadeUp 1s ease ${0.15+i*0.18}s forwards`; el.style.opacity='0';
+  });
+}
+function startTransmission(){
+  if(cinematic) return;
+  ended=true; cinematic=true; cineT=0; packetLaunched=false; endShown=false;
+  hideCard(); hidePrompt(); $transmit.classList.remove('show');
+  const hud=document.getElementById('hud'); hud.style.transition='opacity 1s ease'; hud.style.opacity='0';
+  eyeWide.copy(keplerDir).multiplyScalar(-135); eyeWide.y += 58;   // recul derriere la Terre
+  lookWide.copy(keplerDir).multiplyScalar(95);                     // regard oriente vers Kepler
+  astro.getWorldPosition(pStart); pStart.y += 3;                   // depart = appareil de l'astronaute
+  cineEye.copy(camera.position); cineLook.copy(camLook);
+  beam.visible = true;
+}
+function runCinematic(dt){
+  cineT += dt;
+  // recul puis maintien (lissage exponentiel, independant du framerate)
+  cineEye.lerp(eyeWide, 1 - Math.pow(0.05, dt));
+  cineLook.lerp(lookWide, 1 - Math.pow(0.05, dt));
+  camera.position.copy(cineEye); camera.up.set(0,1,0); camera.lookAt(cineLook);
+  planetGroup.rotateOnWorldAxis(Y, dt*0.05);   // la Terre tourne doucement
+  // lancement du paquet a t = 2.6 s
+  if(cineT>=2.6 && !packetLaunched){ packetLaunched=true; chime(); }
+  if(packetLaunched){
+    const u = Math.min(1, (cineT-2.6)/4.4);     // 4,4 s de voyage vers Kepler
+    pNow.copy(pStart).lerp(keplerPos, easeIO(u));
+    packet.position.copy(pNow); packet.visible=true;
+    packet.scale.setScalar(8 + 34*Math.sin(u*Math.PI));   // grossit puis se concentre
+    placeBeam(pStart, pNow);
+    beam.material.opacity = 0.9*(1-u*0.25);
+    if(u>=1){                                    // reception : Kepler s'illumine
+      keplerGlow.material.opacity = Math.min(1, keplerGlow.material.opacity + dt*1.1);
+      kepler.material.emissiveIntensity = Math.min(2.4, kepler.material.emissiveIntensity + dt*1.6);
+      keplerGlow.scale.setScalar(80 + 45*(0.5+0.5*Math.sin(cineT*3)));
+      beam.material.opacity = Math.max(0, beam.material.opacity - dt*0.6);
+    }
+  }
+  if(cineT>=9.2 && !endShown){ endShown=true; showEnding(); }
+}
+$transmit.addEventListener('click', startTransmission);
+
+// =====================================================================
+//   DÉMARRAGE / RESET
+// =====================================================================
+document.getElementById('start').addEventListener('click', ()=>{
+  initAudio();                 // prépare le contexte audio (musique prête)
+  if(!audioOn) toggleSound();  // démarre le son par défaut au lancement
+  const intro=document.getElementById('intro');
+  intro.classList.add('hide'); setTimeout(()=>intro.style.display='none', 1000);
+  running=true;
+});
+document.getElementById('replay').addEventListener('click', ()=> location.reload());
+
+// resize
+addEventListener('resize', ()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
