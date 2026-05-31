@@ -63,6 +63,21 @@
   #sound.on{color:var(--void);background:var(--orange);border-color:var(--orange);}
   #sound #sound-ico{font-size:13px;line-height:1;}
 
+  /* ---- quete / objectif (apparait en jeu) ---- */
+  #quest{position:absolute;top:58px;left:50%;transform:translate(-50%,-12px);
+    display:flex;align-items:center;gap:13px;max-width:min(560px,92vw);
+    padding:10px 16px;background:var(--panel);border:1px solid var(--line);
+    opacity:0;transition:opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1);pointer-events:none;}
+  #quest.show{opacity:1;transform:translate(-50%,0);}
+  #quest.done{border-color:var(--orange);}
+  #quest .q-ico{color:var(--orange);font-size:15px;line-height:1;}
+  #quest .q-txt{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;line-height:1.5;
+    text-transform:uppercase;color:var(--ink-dim);}
+  #quest .q-txt b{color:var(--ink);font-weight:400;}
+  #quest .q-txt kbd{font-family:var(--mono);font-size:10px;border:1px solid var(--orange);color:var(--orange);padding:1px 5px;}
+  #quest .q-count{font-family:var(--head);font-weight:700;font-size:18px;color:var(--orange);
+    font-variant-numeric:tabular-nums;white-space:nowrap;}
+
   /* ---- info card : ancree au drapeau, reprojetee a l'ecran chaque frame ---- */
   #card{position:absolute;left:0;top:0;transform:translate(26px,-50%);
     width:min(330px,76vw);padding:16px 18px 17px;
@@ -217,6 +232,12 @@
     </div>
   </div>
   <div id="progress-track"><div id="progress-fill"></div></div>
+
+  <div id="quest">
+    <span class="q-ico">◎</span>
+    <span class="q-txt">Objectif : retrouve les <b>9 drapeaux</b> sur la Terre — approche-toi et appuie sur <kbd>E</kbd> pour révéler chaque moment.</span>
+    <span class="q-count"><span id="q-found">0</span>&nbsp;/&nbsp;9</span>
+  </div>
 
   <button id="sound" aria-label="Activer le son" title="Son">
     <span id="sound-ico">♪</span>
@@ -1091,7 +1112,7 @@ const eLean = new THREE.Euler();
 //   master gain → musique d'ambiance + chimes de découverte + pas.
 //   Le bouton « Son » du HUD active/coupe l'ensemble.
 // =====================================================================
-let actx=null, master=null, musicGain=null, audioOn=false;
+let actx=null, master=null, musicGain=null, audioOn=false, music=null;
 
 function initAudio(){
   if(actx) return;
@@ -1102,17 +1123,17 @@ function initAudio(){
 
 // Nappe d'ambiance : accord doux (drone) + lent souffle → minimal, planant.
 function startMusic(){
-  musicGain = actx.createGain(); musicGain.gain.value = 0.5; musicGain.connect(master);
-  const freqs = [110, 164.81, 220, 329.63]; // La grave + quinte/octave (apaisant)
-  freqs.forEach((f,i)=>{
-    const o = actx.createOscillator(); o.type = i<2?'sine':'triangle'; o.frequency.value = f;
-    const g = actx.createGain();
-    const lfo = actx.createOscillator(); lfo.frequency.value = 0.05 + i*0.017;
-    const lfoG = actx.createGain(); lfoG.gain.value = 0.04;
-    lfo.connect(lfoG); lfoG.connect(g.gain);
-    g.gain.value = 0.05 + 0.03*(3-i);
-    o.connect(g); g.connect(musicGain); o.start(); lfo.start();
-  });
+  musicGain = actx.createGain(); musicGain.gain.value = 0.9; musicGain.connect(master);
+  // Musique d'ambiance : fichier mp3 en boucle, route dans le graphe WebAudio
+  // (via MediaElementSource) -> le bouton Son la fond avec le reste du mix.
+  music = new Audio('/song/everything_is_dead-ambient-ambient-music-511240.mp3');
+  music.loop = true; music.preload = 'auto';
+  try{
+    const msrc = actx.createMediaElementSource(music);
+    const mg = actx.createGain(); mg.gain.value = 0.9;
+    msrc.connect(mg); mg.connect(musicGain);
+  }catch(e){ music.volume = 0.7; }   // repli : lecture directe hors graphe
+  music.play().catch(()=>{});
 
   // Souffle d'air / vent : bruit brun (doux) filtre en passe-bas, dont le volume
   // est module lentement par un LFO -> rafales feutrees. Lit en boucle, discret.
@@ -1227,8 +1248,13 @@ function discover(f){
   illuminate(f.dir);                 // la région de la planète s'éveille
   $num.innerHTML=found+'<span>/'+TOTAL+'</span>';
   $fill.style.width=(found/TOTAL*100)+'%';
+  document.getElementById('q-found').textContent=found;   // compteur de la quete
   chime();
-  if(found===TOTAL){ fullAwaken(); $transmit.classList.add('show'); }
+  if(found===TOTAL){
+    fullAwaken(); $transmit.classList.add('show');
+    const q=document.getElementById('quest'); q.classList.add('done');
+    q.querySelector('.q-txt').innerHTML='Tous les moments sont révélés — <b>transmets le message</b>.';
+  }
 }
 
 // =====================================================================
@@ -1477,6 +1503,7 @@ document.getElementById('start').addEventListener('click', ()=>{
   if(!audioOn) toggleSound();  // démarre le son par défaut au lancement
   const intro=document.getElementById('intro');
   intro.classList.add('hide'); setTimeout(()=>intro.style.display='none', 1000);
+  document.getElementById('quest').classList.add('show');   // affiche l'objectif de la quete
   running=true;
 });
 document.getElementById('replay').addEventListener('click', ()=> location.reload());
