@@ -17,6 +17,7 @@ export const NAV_LINKS = [
   { label: "Crise", href: "/crise" },
   { label: "Message", href: "/message.html" },
   { label: "Journal", href: "/journal" },
+  { label: "Conclusion", href: "/#conclusion" },
 ] as const
 
 /** Données « boarding-pass » du héro. */
@@ -129,6 +130,12 @@ export const TIMELINE: TimelineEntry[] = [
     description:
       "Après 18 mois de voyage, l'Odyssey IV entre en orbite de Kepler-452c. Les premières images de la surface sont imminentes.",
     current: true,
+  },
+  {
+    year: "2079",
+    title: "Fin de mission",
+    description:
+      "Première présence humaine en orbite d'une exoplanète, découverte d'une structure d'origine inconnue, crise de désinformation surmontée. L'équipage adresse son message final à la Terre. La mission entre dans les archives.",
   },
 ]
 
@@ -855,6 +862,45 @@ export const CRISIS = {
       text: "Détection d'une manipulation interne du classement (EVT-10) : 3 600+ crédits mission frauduleux. Retrait engagé, cellule responsable écartée.",
     },
   ] as CrisisUpdate[],
+}
+
+/**
+ * Conclusion de la mission (EVT-15) — message final de l'équipage.
+ *
+ * Capsule « transmission Odyssey IV » : message intégral de l'équipage au
+ * complet, horodaté, avec le bilan de la mission. Clôt le site comme archive.
+ */
+export const CONCLUSION = {
+  ref: "EVT-15",
+  status: "Transmission finale reçue",
+  date: "2079.05.31",
+  time: "13:00 UTC",
+  source: "Transmission Odyssey IV · canal principal",
+  duration: "1 min 04 s",
+  author: "Équipage de l'Odyssey IV · au complet",
+  kicker: "Message final de l'équipage",
+  title: "À bientôt, la Terre",
+  // Message intégral (EVT-15), découpé pour la lecture.
+  message: [
+    "Ici l'équipage de l'Odyssey IV, au complet. Dans quelques heures, vous allez présenter notre histoire au monde. On voulait vous dire… merci.",
+    "Merci de raconter ce qu'on vit. Merci de nous défendre quand les rumeurs s'emballent. Merci de nous rappeler pourquoi on est ici quand le doute s'installe.",
+    "Vous êtes notre voix, notre lien avec la Terre. Sans vous, cette mission ne serait que des données dans un serveur. Avec vous, c'est une histoire humaine.",
+    "À bientôt, la Terre. On a une planète à explorer.",
+  ],
+  // Bilan chiffré de la mission (archive).
+  ledger: [
+    { value: "6 / 6", label: "Équipage sain et sauf" },
+    { value: "18 mois", label: "De voyage accompli" },
+    { value: "1", label: "Découverte majeure (EVT-09)" },
+    { value: "0", label: "Rumeur restée sans réponse" },
+  ],
+  // Sous-titres défilants de la capsule (effet « lecture »).
+  captions: [
+    "Transmission entrante · Odyssey IV",
+    "Liaison stable · signal 98 %",
+    "Équipage au complet · 6 / 6",
+    "Fin de mission · archives ouvertes",
+  ],
 }
 
 /** Champ lexical de la cellule (mots à privilégier). */

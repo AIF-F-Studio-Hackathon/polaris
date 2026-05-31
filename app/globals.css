@@ -223,6 +223,17 @@
   .marquee-track { animation: marquee 42s linear infinite; }
   .signal-ring { animation: signal-ring 4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   .signal-ring-2 { animation-delay: 2s; }
+  /* Barre de forme d'onde (capsule de transmission, EVT-15) */
+  .wave-bar {
+    animation: wave-bounce 1s ease-in-out infinite;
+    transform-origin: center;
+  }
+}
+
+/* Forme d'onde de la capsule de conclusion (EVT-15) */
+@keyframes wave-bounce {
+  0%, 100% { height: 18%; }
+  50% { height: 100%; }
 }
 
 /* ============================================================
