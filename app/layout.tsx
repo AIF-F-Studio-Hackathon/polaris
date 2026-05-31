@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SmoothScroll } from "@/components/smooth-scroll"
 import { TextCorruption } from "@/components/site/degraded-mode"
 import { cn } from "@/lib/utils"
 
@@ -122,7 +123,9 @@ export default function RootLayout({
               "(function(){try{var d=document.documentElement;if(localStorage.getItem('polaris-comms')==='degraded'){d.classList.add('degraded')}if(localStorage.getItem('polaris-fx')==='soft'){d.classList.add('fx-soft')}}catch(e){}})()",
           }}
         />
-        <ThemeProvider forcedTheme="light">{children}</ThemeProvider>
+        <ThemeProvider forcedTheme="light">
+          <SmoothScroll>{children}</SmoothScroll>
+        </ThemeProvider>
         <TextCorruption />
       </body>
     </html>

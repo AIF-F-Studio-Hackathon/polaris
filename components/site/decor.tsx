@@ -15,7 +15,7 @@ export function SectionLabel({
 }) {
   return (
     <div className={cn("flex items-center gap-4", className)}>
-      <span className="font-mono text-xs font-medium tracking-[0.2em] text-primary">
+      <span className="font-mono text-xs font-medium tracking-[0.2em] text-foreground">
         [{index}]
       </span>
       <span className="font-heading text-xs font-semibold tracking-[0.3em] uppercase">

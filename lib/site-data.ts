@@ -17,6 +17,7 @@ export const NAV_LINKS = [
   { label: "Crise", href: "/crise" },
   { label: "Message", href: "/message.html" },
   { label: "Journal", href: "/journal" },
+  { label: "Archives", href: "/archives" },
   { label: "Conclusion", href: "/#conclusion" },
 ] as const
 
@@ -90,52 +91,67 @@ export type TimelineEntry = {
   year: string
   title: string
   description: string
+  /** Visuel associé — /public/gallery/timeline/imageN.png (ordre = N). */
+  image: string
   current?: boolean
 }
 
+/**
+ * Chronologie narrative du programme AURORA (section #chronologie).
+ * Sept jalons, du signal initial au présent. Chaque entrée est associée à un
+ * visuel /gallery/timeline/imageN.png (N suit l'ordre de la liste) et défile
+ * en scroll horizontal pinné.
+ */
 export const TIMELINE: TimelineEntry[] = [
   {
     year: "2047",
-    title: "Détection",
+    title: "La découverte initiale",
     description:
-      "Les télescopes spatiaux de nouvelle génération révèlent des signatures atmosphériques inhabituelles sur Kepler-452c.",
+      "Des télescopes de nouvelle génération détectent des signatures atmosphériques inhabituelles sur Kepler-452c, une exoplanète située à 1 400 années-lumière de la Terre. Cette découverte déclenche un intérêt scientifique mondial et marque le point de départ du programme AURORA.",
+    image: "/gallery/timeline/image1.png",
   },
   {
     year: "2058",
-    title: "Programme AURORA",
+    title: "Lancement du programme AURORA",
     description:
-      "L'Agence Spatiale Internationale engage 2 000 milliards de crédits pour bâtir le premier vaisseau interstellaire habité.",
+      "Face à l'importance des signaux détectés, l'Agence Spatiale Internationale lance le programme AURORA avec un objectif inédit : concevoir un vaisseau interstellaire habité capable de rejoindre Kepler-452c en moins de 20 ans.",
+    image: "/gallery/timeline/image2.png",
   },
   {
-    year: "2071",
-    title: "Odyssey IV",
+    year: "2077–2079",
+    title: "Le voyage interstellaire",
     description:
-      "Après treize ans de construction en orbite terrestre, le vaisseau de 340 mètres est achevé.",
-  },
-  {
-    year: "2072",
-    title: "Sélection de l'équipage",
-    description:
-      "Six astronautes sont retenus parmi 12 000 candidats, après cinq années d'entraînement intensif.",
-  },
-  {
-    year: "2077",
-    title: "Lancement",
-    description:
-      "L'Odyssey IV quitte l'orbite terrestre sous les yeux de huit milliards de témoins.",
+      "Le lancement du vaisseau marque un événement historique suivi par l'ensemble de la planète. L'humanité assiste à l'envoi du premier équipage interstellaire vers un autre monde. Durant 18 mois de trajet, l'équipage fait face à plusieurs incidents techniques mineurs et maintient un lien constant avec la Terre à travers des transmissions régulières, mêlant données scientifiques et moments d'émotion humaine.",
+    image: "/gallery/timeline/image3.png",
   },
   {
     year: "2079",
-    title: "Arrivée en orbite",
+    title: "Arrivée et premières observations",
     description:
-      "Après 18 mois de voyage, l'Odyssey IV entre en orbite de Kepler-452c. Les premières images de la surface sont imminentes.",
+      "L'Odyssey IV entre en orbite autour de Kepler-452c. Le survol de la vallée d'Aurelia révèle des formations rocheuses stratifiées et des paysages encore jamais observés par l'humanité. L'émerveillement scientifique est immédiat.",
+    image: "/gallery/timeline/image4.png",
+  },
+  {
+    year: "2079",
+    title: "L'anomalie et la crise",
+    description:
+      "Un signal électromagnétique inconnu est détecté dans la vallée d'Aurelia. L'équipe découvre une structure cristalline active. Cette découverte provoque une crise médiatique mondiale, amplifiée par des rumeurs (#AuroraAlien) et une désinformation massive, incluant deepfakes et tensions internes.",
+    image: "/gallery/timeline/image5.png",
+  },
+  {
+    year: "2079",
+    title: "Le basculement",
+    description:
+      "Le signal évolue et devient structuré, suggérant une forme d'intelligence ou de réponse. La crise laisse place à une interrogation majeure : face à l'inconnu, l'humanité doit désormais décider comment communiquer avec ce phénomène inédit.",
+    image: "/gallery/timeline/image6.png",
+  },
+  {
+    year: "2079",
+    title: "Situation actuelle",
+    description:
+      "L'équipage confirme une activité évolutive de la structure cristalline et poursuit l'analyse scientifique. Le CCA coordonne la communication mondiale dans un contexte de forte pression médiatique et émotionnelle.",
+    image: "/gallery/timeline/image7.png",
     current: true,
-  },
-  {
-    year: "2079",
-    title: "Fin de mission",
-    description:
-      "Première présence humaine en orbite d'une exoplanète, découverte d'une structure d'origine inconnue, crise de désinformation surmontée. L'équipage adresse son message final à la Terre. La mission entre dans les archives.",
   },
 ]
 
@@ -678,7 +694,9 @@ export type CrisisUpdate = {
 }
 
 export const CRISIS = {
-  active: true,
+  // Crise close : la bannière d'urgence de l'accueil disparaît. La page
+  // Centre de crise reste accessible via la nav (« Crise ») comme archive.
+  active: false,
   ref: "EVT-11",
   level: "Niveau 3 · Crise médiatique",
   status: "Cellule de crise activée",
@@ -877,6 +895,9 @@ export const CONCLUSION = {
   time: "13:00 UTC",
   source: "Transmission Odyssey IV · canal principal",
   duration: "1 min 04 s",
+  // Capsule vidéo intégrée (livrable EVT-15). Chemin brut : encodé à l'affichage.
+  video: "/videos/Séquence_émotion_pour_la_capsule _vidéo.mp4",
+  poster: "/Landing_Diapo.png",
   author: "Équipage de l'Odyssey IV · au complet",
   kicker: "Message final de l'équipage",
   title: "À bientôt, la Terre",
@@ -902,6 +923,170 @@ export const CONCLUSION = {
     "Fin de mission · archives ouvertes",
   ],
 }
+
+/** Réseaux sociaux de la cellule POLARIS. */
+export const SOCIAL_LINKS = [
+  {
+    label: "Instagram",
+    handle: "@polaris.kepler",
+    href: "https://www.instagram.com/polaris.kepler/",
+    icon: "instagram" as const,
+  },
+  {
+    label: "X",
+    handle: "@PolarisKepler3",
+    href: "https://x.com/PolarisKepler3",
+    icon: "x" as const,
+  },
+]
+
+/**
+ * Archives de production (page /archives).
+ *
+ * Inventaire de tous les livrables réellement produits pour la mission AURORA
+ * et stockés dans /public : communiqués, visuels, vidéos, premières images,
+ * portraits d'équipage et ressources d'identité. L'arborescence est organisée
+ * par type de support ; chaque fichier porte le tag de l'événement (EVT-xx)
+ * qu'il a servi, lorsqu'il est identifiable.
+ *
+ * AJOUTER UN FICHIER : déposer l'asset dans /public puis ajouter une entrée
+ * { name, path, type, evt?, note? } dans la bonne catégorie. `path` est l'URL
+ * publique exacte (encodée à l'affichage). Les polices (/public/typo) ne sont
+ * pas listées : ce sont des ressources techniques, pas des livrables.
+ */
+export type ArchiveFileType = "pdf" | "image" | "video" | "audio"
+
+export type ArchiveFile = {
+  /** Libellé lisible affiché dans l'arbre. */
+  name: string
+  /** URL publique exacte du fichier (sera encodée à l'affichage). */
+  path: string
+  type: ArchiveFileType
+  /** Événement servi par le fichier (clé de ARCHIVE_EVENTS). */
+  evt?: string
+  /** Précision contextuelle, affichée en clair à droite du nom. */
+  note?: string
+}
+
+export type ArchiveCategory = {
+  id: string
+  label: string
+  /** Sous-titre de la catégorie (charte mono). */
+  caption: string
+  files: ArchiveFile[]
+}
+
+/** Libellés des événements pour les tags EVT-xx de l'archive. */
+export const ARCHIVE_EVENTS: Record<string, string> = {
+  "EVT-01": "Lancement",
+  "EVT-02": "Incident capteur",
+  "EVT-04": "Tempête solaire",
+  "EVT-06": "Signal anormal",
+  "EVT-08": "Sortie EVA",
+  "EVT-09": "Découverte",
+  "EVT-10": "Manipulation interne",
+  "EVT-11": "Crise · désinformation",
+  "EVT-15": "Conclusion",
+}
+
+export const ARCHIVE: ArchiveCategory[] = [
+  {
+    id: "communication",
+    label: "Communication",
+    caption: "Communiqués · notes · démentis",
+    files: [
+      { name: "Communiqué de lancement", path: "/Communication/Communiqué de lancement.pdf", type: "pdf", evt: "EVT-01" },
+      { name: "Communiqué de lancement (version finale)", path: "/Communication/Communiqué de lancement (bonne version).pdf", type: "pdf", evt: "EVT-01" },
+      { name: "Communiqué « Premières images »", path: "/Communication/Communiqué « Premières images ».pdf", type: "pdf", note: "Arrivée en orbite" },
+      { name: "Rapport d'anomalie classifié", path: "/Communication/Rapport_d_anomalie_classifié.pdf", type: "pdf", evt: "EVT-06" },
+      { name: "Note de synthèse confidentielle", path: "/Communication/note_de_synthese_confidentielle.pdf", type: "pdf", evt: "EVT-06" },
+      { name: "Communiqué de découverte scientifique", path: "/Communication/Communiqué de découverte scientifique .pdf", type: "pdf", evt: "EVT-09" },
+      { name: "Communiqué d'accompagnement", path: "/Communication/Communiqué d_accompagnement.pdf", type: "pdf", evt: "EVT-09" },
+      { name: "Note de vulgarisation scientifique", path: "/Communication/Note_de_vulgarisation_scientifique.pdf", type: "pdf", evt: "EVT-09" },
+      { name: "Note interne · incident technique", path: "/Communication/Note Interne - Incident technique .pdf", type: "pdf", evt: "EVT-02" },
+      { name: "Analyse de la manipulation interne", path: "/Communication/Analyse de la manipulation interne.pdf", type: "pdf", evt: "EVT-10" },
+      { name: "Démenti officiel du CCA", path: "/Communication/Démenti officiel du CCA.pdf", type: "pdf", evt: "EVT-11" },
+      { name: "Communiqué d'alerte publique", path: "/Communication/Communiqué d_alerte Publique.pdf", type: "pdf", evt: "EVT-11" },
+      { name: "Kit de réponse · manipulation et désinformation", path: "/Communication/Kit de réponse - manipulation et désinformation.pdf", type: "pdf", evt: "EVT-11" },
+      { name: "Éléments de langage anti-sensationnalisme", path: "/Communication/Éléments_de_langage_anti-sensationnalisme.pdf", type: "pdf", evt: "EVT-11" },
+      { name: "Communication à destination des familles", path: "/Communication/Communication à destination des familles.pdf", type: "pdf", evt: "EVT-11" },
+      { name: "Bilan de communication de la mission", path: "/Communication/Bilan_de_communication_de_la_mission.pdf", type: "pdf", evt: "EVT-15" },
+      { name: "Charte éditoriale POLARIS", path: "/Communication/Charte éditoriale - Polaris .pdf", type: "pdf", note: "Cadre SOC-01" },
+      { name: "Stratégie de communication", path: "/Communication/Stratégie de Communication.pdf", type: "pdf", note: "Cadre général" },
+    ],
+  },
+  {
+    id: "visuel",
+    label: "Visuel",
+    caption: "Infographies · cartes · visuels iconiques",
+    files: [
+      { name: "Premier contact · le visuel iconique", path: "/Visuel/Premier contact - le visuel iconique.png", type: "image", evt: "EVT-09" },
+      { name: "Le visuel iconique", path: "/Visuel/le_visuel_iconique.pdf", type: "pdf", evt: "EVT-09" },
+      { name: "Représentation de la structure", path: "/Visuel/Représentation structure.pdf", type: "pdf", evt: "EVT-09" },
+      { name: "Visualisation des données du signal", path: "/Visuel/Visualisation des données du signal.pdf", type: "pdf", evt: "EVT-06" },
+      { name: "Cartographie", path: "/Visuel/Cartographie.pdf", type: "pdf", evt: "EVT-08", note: "Secteur 7" },
+      { name: "Visuel EVA finalisé", path: "/Visuel/Visuel_EVA_finalisé.pdf", type: "pdf", evt: "EVT-08" },
+      { name: "Infographie · anatomie de l'Odyssey IV", path: "/Visuel/Infographie - anatomie de l_Odyssey IV.pdf", type: "pdf", note: "Odyssey IV" },
+      { name: "Présentation de l'équipage", path: "/Visuel/Présentation-de-l_equipage.pdf", type: "pdf", note: "Équipage" },
+      { name: "Kit réseaux sociaux", path: "/Visuel/Kit réseaux sociaux.pdf", type: "pdf", note: "Réseaux sociaux" },
+      { name: "Identité visuelle", path: "/Visuel/Identité visuelle.pdf", type: "pdf", note: "Identité" },
+      { name: "Visuel citation spatiale", path: "/Visuel/Visuel citation spatiale.png", type: "image", note: "Citation" },
+    ],
+  },
+  {
+    id: "videos",
+    label: "Vidéos",
+    caption: "Capsules · transmissions · habillages",
+    files: [
+      { name: "Transmission dégradée", path: "/videos/Transmission_dégradée.MP4", type: "video", evt: "EVT-04" },
+      { name: "Vidéo « Signe de vie »", path: "/videos/Vidéo Signe de Vie.mp4", type: "video", evt: "EVT-08" },
+      { name: "Signe de vie · habillage de fond", path: "/videos/signe-de-vie-bg.mp4", type: "video", evt: "EVT-08", note: "Boucle décor" },
+      { name: "Capsule vidéo · moment de la découverte", path: "/videos/Capsule Vidéo - moment de la découverte .mp4", type: "video", evt: "EVT-09" },
+      { name: "Séquence émotion · capsule vidéo", path: "/videos/Séquence_émotion_pour_la_capsule _vidéo.mp4", type: "video", evt: "EVT-15" },
+      { name: "Séquence émotion · capsule vidéo (variante)", path: "/videos/Séquence_émotion_pour_la_capsule _vidéo(1).mp4", type: "video", evt: "EVT-15", note: "Variante" },
+    ],
+  },
+  {
+    id: "galerie",
+    label: "Galerie · premières images",
+    caption: "Kepler-452c · clichés de l'équipage",
+    files: [
+      { name: "Premier hémisphère", path: "/gallery/kepler-01.jpg", type: "image", note: "Cdt. Ripley" },
+      { name: "Sonde d'observation en approche", path: "/gallery/kepler-02.jpg", type: "image", note: "Lt. Laurent" },
+      { name: "Largage de la sonde atmosphérique", path: "/gallery/kepler-03.jpg", type: "image", note: "Spc. Wong" },
+      { name: "Reliefs du grand rift", path: "/gallery/kepler-04.jpg", type: "image", note: "Dr. Patel" },
+      { name: "Canyon · ligne du terminateur", path: "/gallery/kepler-05.jpg", type: "image", note: "Spc. Davis" },
+      { name: "Calotte glaciaire · cratère polaire", path: "/gallery/kepler-06.jpg", type: "image", evt: "EVT-08", note: "Dr. Silva" },
+    ],
+  },
+  {
+    id: "equipage",
+    label: "Équipage",
+    caption: "Portraits officiels · Odyssey IV",
+    files: [
+      { name: "Cdt. E. Ripley", path: "/astronautes/Astronaut-Ripley.png", type: "image", note: "CMD-01" },
+      { name: "Dr. S. Patel", path: "/astronautes/Astronaut-Patel.png", type: "image", note: "SCI-01" },
+      { name: "Lt. A. Laurent", path: "/astronautes/Astronaut-Laurent.png", type: "image", note: "EVA-01" },
+      { name: "Spc. T. Wong", path: "/astronautes/Astronaut-Wong.png", type: "image", note: "ENG-01" },
+      { name: "Dr. E. Silva", path: "/astronautes/Astronaut-Silva.png", type: "image", note: "MED-01" },
+      { name: "Spc. N. Davis", path: "/astronautes/Astronaut-Davis.png", type: "image", note: "COM-01" },
+    ],
+  },
+  {
+    id: "identite",
+    label: "Identité & ressources",
+    caption: "Logos · marque · habillage sonore",
+    files: [
+      { name: "Logo · clair couleurs", path: "/Logo_Light_Colors.svg", type: "image" },
+      { name: "Logo · clair mono", path: "/Logo_Light_Mono.svg", type: "image" },
+      { name: "Logo · sombre couleurs", path: "/Logo_Dark_Colors.svg", type: "image" },
+      { name: "Logo · sombre mono", path: "/Logo_Dark_Mono.svg", type: "image" },
+      { name: "Icône POLARIS", path: "/icone_POLARIS.png", type: "image" },
+      { name: "Diapositive d'accueil", path: "/Landing_Diapo.png", type: "image" },
+      { name: "Ambiance sonore · everything is dead", path: "/song/everything_is_dead-ambient-ambient-music-511240.mp3", type: "audio", note: "Bande-son du site" },
+    ],
+  },
+]
 
 /** Champ lexical de la cellule (mots à privilégier). */
 export const LEXICON = [

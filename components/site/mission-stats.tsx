@@ -42,7 +42,7 @@ export function MissionStats() {
                 <span className="flex shrink-0 items-baseline gap-1.5 font-display text-4xl font-bold leading-none tracking-tight md:text-6xl">
                   <CountUp value={stat.value} />
                   {stat.unit ? (
-                    <span className="text-lg text-primary md:text-2xl">
+                    <span className="text-xl text-primary md:text-2xl">
                       {stat.unit}
                     </span>
                   ) : null}

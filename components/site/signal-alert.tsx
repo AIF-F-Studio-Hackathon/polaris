@@ -51,7 +51,7 @@ export function SignalAlert() {
                   Signal anormal détecté
                 </h3>
               </div>
-              <span className="hidden items-center gap-2 font-mono text-[0.625rem] tracking-[0.18em] text-primary uppercase sm:flex">
+              <span className="hidden items-center gap-2 font-mono text-[0.625rem] tracking-[0.18em] text-foreground uppercase sm:flex">
                 <LiveDot />
                 {SIGNAL.status}
               </span>
@@ -113,7 +113,7 @@ export function SignalAlert() {
                   <span className="absolute top-1.5 -left-[1.7rem] size-2 rounded-full bg-primary" />
                   <p className="font-mono text-[0.625rem] tracking-[0.16em] text-muted-foreground uppercase">
                     {u.date} · {u.time}
-                    <span className="ml-2 text-primary">
+                    <span className="ml-2 text-foreground">
                       [{u.visibility === "public" ? "Public" : "Confidentiel"}]
                     </span>
                   </p>
@@ -153,7 +153,7 @@ function ClassificationChip({ isPublic }: { isPublic: boolean }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-2 border border-primary px-2.5 py-1 font-mono text-[0.625rem] tracking-[0.18em] text-primary uppercase">
+    <span className="inline-flex items-center gap-2 border border-primary px-2.5 py-1 font-mono text-[0.625rem] tracking-[0.18em] text-foreground uppercase">
       <Lock className="size-3" />
       {SIGNAL.classification}
     </span>
@@ -174,11 +174,13 @@ function AnomalyPulse() {
 function Redacted({ value }: { value: string }) {
   return (
     <span
-      className="inline-block select-none align-middle"
+      role="img"
       aria-label="Information confidentielle"
       title="Information confidentielle"
+      className="inline-block select-none align-middle"
     >
       <span
+        aria-hidden
         className="inline-block h-3 align-middle bg-foreground/70"
         style={{ width: `${Math.min(value.length, 22) * 0.5}rem` }}
       />

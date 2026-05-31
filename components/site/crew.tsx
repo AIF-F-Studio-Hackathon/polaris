@@ -50,7 +50,7 @@ export function Crew() {
                   <h3 className="font-heading text-lg font-semibold tracking-wide uppercase md:text-xl">
                     {member.name}
                   </h3>
-                  <p className="mt-1.5 font-mono text-[0.6875rem] tracking-[0.12em] text-primary uppercase">
+                  <p className="mt-1.5 font-mono text-[0.6875rem] tracking-[0.12em] text-foreground uppercase">
                     {member.role} · {member.callsign}
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">

@@ -3,14 +3,30 @@ import { ArrowDown, MoveRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TICKER_ITEMS } from "@/lib/site-data"
 import { StarGlyph } from "@/components/site/brand-mark"
+import { HeroVideo } from "@/components/site/hero-video"
 import { LiveDot, OrbitArc, PlusMark } from "@/components/site/decor"
 
 export function Hero() {
   return (
     <section
       id="accueil"
-      className="dot-grid relative isolate flex min-h-svh flex-col overflow-hidden bg-background pt-24"
+      className="relative isolate flex min-h-svh flex-col overflow-hidden bg-background pt-24"
     >
+      {/* ---------- Vidéo de fond (EVT « Signe de Vie ») ----------
+          Posée tout au fond de la pile (-z-10) puis tamisée par un voile
+          crème : le texte sombre, la trame de points et les objets du board
+          restent lisibles et fidèles à la charte (thème clair POLARIS). */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <HeroVideo />
+        {/* Voile crème : fond la vidéo dans la charte + contraste du texte */}
+        <div className="absolute inset-0 bg-background/82" />
+        {/* Dégradés haut/bas pour fondre la vidéo avec la nav et le ticker */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-background to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-linear-to-t from-background to-transparent" />
+        {/* Trame de points (blueprint) conservée, posée au-dessus du voile */}
+        <div className="dot-grid absolute inset-0" />
+      </div>
+
       {/* ---------- Objets du board ---------- */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         {/* Arcs orbitaux qui débordent */}
@@ -62,7 +78,7 @@ export function Hero() {
           <StarGlyph className="h-7 w-auto text-primary" />
 
           <div className="mt-6 flex items-center gap-3 font-mono text-xs tracking-[0.2em] text-muted-foreground uppercase">
-            <span className="text-primary">Programme AURORA</span>
+            <span className="text-foreground">Programme AURORA</span>
             <span className="h-px w-6 bg-border" />
             <span>Centre de Contrôle · 2079</span>
           </div>
@@ -122,7 +138,7 @@ export function Hero() {
             <div className="marquee-track flex w-max items-center gap-10 py-2.5 font-mono text-[0.6875rem] tracking-[0.12em] whitespace-nowrap text-muted-foreground uppercase">
               {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
                 <span key={i} className="flex items-center gap-3">
-                  <span className="text-primary">+</span>
+                  <span className="text-foreground/70">+</span>
                   {item}
                 </span>
               ))}

@@ -34,3 +34,11 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# videos : on versionne les clips < 100 Mo (limite GitHub) ; les sources
+# lourdes (> 100 Mo) restent hors dépôt — à héberger via LFS/CDN.
+/public/videos/*
+!/public/videos/signe-de-vie-bg.mp4
+!/public/videos/Séquence_émotion_pour_la_capsule _vidéo.mp4
+!/public/videos/Séquence_émotion_pour_la_capsule _vidéo(1).mp4
+!/public/videos/Transmission_dégradée.MP4

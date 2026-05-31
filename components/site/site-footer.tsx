@@ -1,7 +1,31 @@
-import { NAV_LINKS } from "@/lib/site-data"
+import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/site-data"
 import { Separator } from "@/components/ui/separator"
 import { BrandMark } from "@/components/site/brand-mark"
 import { Barcode, LiveDot, OrbitArc, PlusMark } from "@/components/site/decor"
+
+/* Logos de marque en SVG (lucide n'expose pas d'icônes de marque à jour). */
+function InstagramLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+function XLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="currentColor" className={className}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+    </svg>
+  )
+}
+
+const SOCIAL_ICONS = {
+  instagram: InstagramLogo,
+  x: XLogo,
+} as const
 
 const PROGRAMME_LINKS = [
   { label: "Programme AURORA", href: "/" },
@@ -49,6 +73,31 @@ export function SiteFooter() {
               Cellule de communication du Centre de Contrôle Aurora. En liaison
               permanente avec l&apos;Odyssey&nbsp;IV.
             </p>
+
+            {/* Réseaux sociaux */}
+            <div className="mt-6 flex flex-col gap-2.5">
+              <span className="font-mono text-[0.625rem] tracking-[0.2em] text-muted-foreground uppercase">
+                Suivez la mission
+              </span>
+              <div className="flex items-center gap-3">
+                {SOCIAL_LINKS.map((social) => {
+                  const Icon = SOCIAL_ICONS[social.icon]
+                  return (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${social.label} · ${social.handle}`}
+                      title={`${social.label} · ${social.handle}`}
+                      className="flex size-9 items-center justify-center border border-border text-foreground/70 transition-colors hover:border-primary hover:text-primary"
+                    >
+                      <Icon className="size-4" />
+                    </a>
+                  )
+                })}
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-2.5 font-mono text-[0.625rem] tracking-[0.2em] text-muted-foreground uppercase">
             <LiveDot />
